@@ -28,6 +28,7 @@ export class DashboardMockSource implements DashboardSource {
     await mockLatency(300);
     const now = this.now();
     const today = colomboDateKey(now);
+    this.world.settleAssignments(now);
     const { pickups, collectors, orders } = this.world;
 
     const scheduledToday = pickups.filter((p) => p.scheduledDate === today);

@@ -330,7 +330,13 @@ Response `200`:
       "windowStart": "2026-11-07T09:30:00Z",
       "windowEnd": "2026-11-07T10:30:00Z",
       "createdAt": "2026-11-07T05:18:00Z",
-      "collectorId": null
+      "collectorId": null,
+      "offer": {
+        "assignmentId": "asg_7",
+        "collectorId": "col_515",
+        "collectorName": "Lahiru Gunasekara",
+        "expiresAt": "2026-11-07T06:00:45Z"
+      }
     }
   ],
   "hubs": [
@@ -350,4 +356,64 @@ Response `200`:
 - `loadKg` is what the collector is carrying: collected, not yet delivered to a hub.
 - `activePickupId` is the pickup they are assigned to, travelling to or at, or `null`.
 - `pickups` lists open pickups (`pending`, `assigned`, `enRoute`, `arrived`) for today and later.
-  `collectorId` is set once assigned.
+  `collectorId` is set once assigned. `offer` is the open call-centre offer (see Assignments), or `null`.
+
+## Assignments
+
+The call centre offers a pickup to a specific collector. The collector app shows the offer with a 45-second
+countdown (`GET /assignments/current` in the collector contract); the collector accepts or declines with a
+reason, or the offer expires. Only one offer per pickup is open at a time.
+
+An assignment:
+
+| Field           | Meaning                                                                      |
+| --------------- | ---------------------------------------------------------------------------- |
+| `status`        | `offered`, `accepted`, `declined`, `expired` or `withdrawn`                  |
+| `expiresAt`     | `offeredAt` plus 45 seconds                                                  |
+| `respondedAt`   | When it was accepted, declined, expired or withdrawn; `null` while `offered` |
+| `declineReason` | The collector's reason, only when `declined`                                 |
+| `offeredBy`     | The staff member who made the offer                                          |
+
+### `POST /admin/pickups/{id}/assignments`
+
+```json
+{ "collectorId": "col_515", "note": "Customer prefers before 3 PM." }
+```
+
+Response `201`:
+
+```json
+{
+  "id": "asg_7",
+  "pickupId": "RT-24841",
+  "collector": {
+    "id": "col_515",
+    "code": "COL-0515",
+    "name": "Lahiru Gunasekara"
+  },
+  "status": "offered",
+  "note": "Customer prefers before 3 PM.",
+  "offeredAt": "2026-11-07T06:00:00Z",
+  "expiresAt": "2026-11-07T06:00:45Z",
+  "respondedAt": null,
+  "declineReason": null,
+  "offeredBy": "Kasun Jayawardena"
+}
+```
+
+`note` is optional (up to 200 characters) and shown to the collector. Errors, all 409:
+`PICKUP_ALREADY_ASSIGNED` (the pickup isn't `pending`), `ASSIGNMENT_PENDING` (an offer is still open),
+`COLLECTOR_OFFLINE`, `LOAD_FULL` (the collector has no room for the estimated weight).
+
+### `GET /admin/pickups/{id}/assignments`
+
+Response `200`: `{ "items": [Assignment] }`, newest first. Every offer made for the pickup.
+
+### `GET /admin/assignments/{id}`
+
+Response `200`: the assignment. The portal polls this every 2 seconds while an offer is open.
+
+### `POST /admin/assignments/{id}/withdraw`
+
+Empty body. Response `200`: the assignment, now `withdrawn`. 409 `ASSIGNMENT_CLOSED` if it was already
+answered or expired.

@@ -32,6 +32,7 @@ export class DispatchMockSource implements DispatchSource {
     await mockLatency(150);
     const now = this.now();
     const today = colomboDateKey(now);
+    this.world.settleAssignments(now);
     const { pickups } = this.world;
 
     const open = pickups.filter(
@@ -60,6 +61,7 @@ export class DispatchMockSource implements DispatchSource {
           windowEnd: p.windowEnd,
           createdAt: p.createdAt,
           collectorId: p.collectorId,
+          offer: this.openOffer(p.id),
         };
       }),
       hubs: this.world.hubs.map(({ id, code, name, latitude, longitude }) => ({
@@ -69,6 +71,20 @@ export class DispatchMockSource implements DispatchSource {
         latitude,
         longitude,
       })),
+    };
+  }
+
+  private openOffer(pickupId: string) {
+    const offer = this.world.assignments.find(
+      (a) => a.pickupId === pickupId && a.status === "offered",
+    );
+    const collector = this.world.collector(offer?.collectorId ?? null);
+    if (!offer || !collector) return null;
+    return {
+      assignmentId: offer.id,
+      collectorId: collector.id,
+      collectorName: `${collector.firstName} ${collector.lastName}`,
+      expiresAt: offer.expiresAt,
     };
   }
 
