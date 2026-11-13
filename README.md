@@ -41,6 +41,16 @@ pnpm dev                     # http://localhost:3000
 Until pctw-backend exists, keep `USE_MOCK_DATA=true`. Mock data lives for the life of the dev server and
 resets when it restarts.
 
+### Signing in with mock data
+
+| Role        | Email                    | Password              |
+| ----------- | ------------------------ | --------------------- |
+| Admin       | `admin@rethread.lk`      | `rethread-admin`      |
+| Call Centre | `callcentre@rethread.lk` | `rethread-callcentre` |
+
+`ishara@rethread.lk` is a suspended call-centre account, for testing the "account suspended" message.
+Call-centre staff can't open Rates & impact, Catalogue, Donations or Staff.
+
 ## Scripts
 
 | Script                              | Does                            |
