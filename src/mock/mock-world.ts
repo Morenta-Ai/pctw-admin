@@ -8,6 +8,7 @@ import { createRandom } from "@/mock/seed/random";
 import { staffIdFromMockToken } from "@/mock/mock-tokens";
 import { seedStaff, type MockStaffAccount } from "@/mock/seed/staff";
 import type {
+  MockAssignment,
   MockCollector,
   MockCustomer,
   MockHub,
@@ -42,6 +43,7 @@ export class MockWorld {
   vendors: MockVendor[];
   products: MockProduct[];
   orders: MockOrder[];
+  assignments: MockAssignment[] = [];
 
   constructor(now: Date = new Date()) {
     this.seededAt = now;
@@ -78,6 +80,59 @@ export class MockWorld {
 
   customer(id: string): MockCustomer | undefined {
     return this.customers.find((customer) => customer.id === id);
+  }
+
+  /**
+   * Plays the collector's side of open offers up to `now`, so reads see
+   * what the collector app would have done by then:
+   *
+   * - a collector already on a job declines after 6 s ("Already on a job")
+   * - COL-0421 never answers, so the offer expires at 45 s
+   * - anyone else accepts after 8 s, and the pickup becomes theirs
+   */
+  settleAssignments(now: Date): void {
+    for (const offer of this.assignments) {
+      if (offer.status !== "offered") continue;
+      const collector = this.collector(offer.collectorId);
+      const pickup = this.pickups.find((p) => p.id === offer.pickupId);
+      const offeredAt = Date.parse(offer.offeredAt);
+      const busy = this.pickups.some(
+        (p) =>
+          p.collectorId === offer.collectorId &&
+          ["assigned", "enRoute", "arrived"].includes(p.status),
+      );
+      const at = (ms: number) => new Date(offeredAt + ms).toISOString();
+
+      if (!pickup || pickup.status !== "pending") {
+        offer.status = "withdrawn";
+        offer.respondedAt = now.toISOString();
+      } else if (collector?.code !== "COL-0421" && busy) {
+        if (now.getTime() >= offeredAt + 6_000) {
+          offer.status = "declined";
+          offer.declineReason = "Already on a job";
+          offer.respondedAt = at(6_000);
+        }
+      } else if (collector && collector.code !== "COL-0421") {
+        if (now.getTime() >= offeredAt + 8_000) {
+          offer.status = "accepted";
+          offer.respondedAt = at(8_000);
+          pickup.status = "assigned";
+          pickup.collectorId = collector.id;
+          pickup.timeline.push({
+            status: "assigned",
+            occurredAt: offer.respondedAt,
+            actor: `${collector.firstName} ${collector.lastName}`,
+          });
+        }
+      }
+      if (
+        offer.status === "offered" &&
+        now.getTime() >= Date.parse(offer.expiresAt)
+      ) {
+        offer.status = "expired";
+        offer.respondedAt = offer.expiresAt;
+      }
+    }
   }
 
   /** The staff member a mock access token belongs to, for timeline actors. */

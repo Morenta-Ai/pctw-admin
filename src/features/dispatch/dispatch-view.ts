@@ -91,3 +91,39 @@ export function nearestCollectors(
     .sort((a, b) => a.distanceKm - b.distanceKm)
     .slice(0, limit);
 }
+
+export type Candidate = {
+  id: string;
+  code: string;
+  name: string;
+  distanceKm: number;
+  loadKg: number;
+  capacityKg: number;
+  /** Room for the pickup's estimated weight. */
+  hasRoom: boolean;
+  /** Already assigned to or travelling to another pickup. */
+  busy: boolean;
+};
+
+/** Every online collector for the assign dialog: those with room first, then nearest. */
+export function rankCandidates(
+  dispatch: Dispatch,
+  pickup: Pick<DispatchPickup, "latitude" | "longitude" | "estimatedKg">,
+): Candidate[] {
+  return dispatch.collectors
+    .filter((c) => c.online)
+    .map((c) => ({
+      id: c.id,
+      code: c.code,
+      name: c.name,
+      distanceKm: distanceKm(c, pickup),
+      loadKg: c.loadKg,
+      capacityKg: c.vehicle.capacityKg,
+      hasRoom: c.vehicle.capacityKg - c.loadKg >= pickup.estimatedKg,
+      busy: c.activePickupId !== null,
+    }))
+    .sort(
+      (a, b) =>
+        Number(b.hasRoom) - Number(a.hasRoom) || a.distanceKm - b.distanceKm,
+    );
+}

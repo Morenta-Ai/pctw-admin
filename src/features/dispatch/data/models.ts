@@ -52,6 +52,14 @@ export const dispatchPickupSchema = z.object({
   windowEnd: z.iso.datetime(),
   createdAt: z.iso.datetime(),
   collectorId: z.string().nullable(),
+  offer: z
+    .object({
+      assignmentId: z.string(),
+      collectorId: z.string(),
+      collectorName: z.string(),
+      expiresAt: z.iso.datetime(),
+    })
+    .nullable(),
 });
 export type DispatchPickup = z.infer<typeof dispatchPickupSchema>;
 

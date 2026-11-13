@@ -21,6 +21,7 @@ export class PickupsMockSource implements PickupsSource {
 
   async list(query: PickupQuery) {
     await mockLatency();
+    this.world.settleAssignments(this.now());
     const q = query.q?.toLowerCase();
     const rows = this.world.pickups
       .filter((p) => !query.status || p.status === query.status)
@@ -48,11 +49,13 @@ export class PickupsMockSource implements PickupsSource {
 
   async get(id: string) {
     await mockLatency();
+    this.world.settleAssignments(this.now());
     return this.toDetail(this.find(id));
   }
 
   async cancel(id: string, reason: string) {
     await mockLatency(300);
+    this.world.settleAssignments(this.now());
     const pickup = this.find(id);
     if (!cancellableStatuses.includes(pickup.status)) {
       throw new ApiError({

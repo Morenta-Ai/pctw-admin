@@ -100,6 +100,22 @@ export type MockPickup = {
   timeline: MockPickupEvent[];
 };
 
+export type AssignmentStatus =
+  "offered" | "accepted" | "declined" | "expired" | "withdrawn";
+
+export type MockAssignment = {
+  id: string;
+  pickupId: string;
+  collectorId: string;
+  status: AssignmentStatus;
+  note: string | null;
+  offeredAt: string;
+  expiresAt: string;
+  respondedAt: string | null;
+  declineReason: string | null;
+  offeredBy: string;
+};
+
 export type MockHub = {
   id: string;
   code: string;
