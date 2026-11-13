@@ -8,6 +8,7 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
@@ -17,7 +18,14 @@ import type { Role } from "@/core/auth/roles";
 import { navGroupsFor } from "./nav-items";
 
 /** The sidebar's sections for this role, with the current one in a lime pill. */
-export function PortalNav({ role }: { role: Role }) {
+export function PortalNav({
+  role,
+  badges = {},
+}: {
+  role: Role;
+  /** Counts shown beside nav items, by href. */
+  badges?: Partial<Record<string, number>>;
+}) {
   const pathname = usePathname();
   const { isMobile, setOpenMobile } = useSidebar();
 
@@ -47,6 +55,14 @@ export function PortalNav({ role }: { role: Role }) {
                     <span>{item.title}</span>
                   </Link>
                 </SidebarMenuButton>
+                {(badges[item.href] ?? 0) > 0 && (
+                  <SidebarMenuBadge
+                    aria-label={`${badges[item.href]} waiting`}
+                    className="rounded-full bg-lime font-bold text-lime-foreground peer-data-active/menu-button:bg-primary peer-data-active/menu-button:text-primary-foreground"
+                  >
+                    {badges[item.href]}
+                  </SidebarMenuBadge>
+                )}
               </SidebarMenuItem>
             );
           })}

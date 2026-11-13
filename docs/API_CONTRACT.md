@@ -417,3 +417,112 @@ Response `200`: the assignment. The portal polls this every 2 seconds while an o
 
 Empty body. Response `200`: the assignment, now `withdrawn`. 409 `ASSIGNMENT_CLOSED` if it was already
 answered or expired.
+
+## Orders
+
+Marketplace orders from the user app. The call centre confirms each new order, which creates its waybill,
+then sends it out or readies it at the click & collect point.
+
+| From                              | Next             | When                                     |
+| --------------------------------- | ---------------- | ---------------------------------------- |
+| `placed`                          | `confirmed`      | Packed; the waybill number is issued     |
+| `confirmed`                       | `outForDelivery` | Home delivery handed to the courier      |
+| `confirmed`                       | `readyAtVendor`  | Click & collect parcel at the vendor     |
+| `outForDelivery`, `readyAtVendor` | `completed`      | Delivered, or collected by the customer  |
+| any but `completed`               | `cancelled`      | The customer is refunded to their wallet |
+
+### `GET /admin/orders?status=placed&fulfilmentType=homeDelivery&q=nadeesha&page=1&pageSize=25`
+
+Filters are optional. `q` matches the order ID, the customer's name or mobile, and the waybill number.
+Newest first.
+
+Response `200`:
+
+```json
+{
+  "items": [
+    {
+      "id": "ORD-5134",
+      "status": "placed",
+      "customerName": "Dinesh Mendis",
+      "itemCount": 2,
+      "totalCents": 600000,
+      "fulfilmentType": "homeDelivery",
+      "vendorName": null,
+      "waybillNumber": null,
+      "createdAt": "2026-11-07T05:46:00Z"
+    }
+  ],
+  "page": 1,
+  "pageSize": 25,
+  "totalCount": 1
+}
+```
+
+### `GET /admin/orders/{id}`
+
+Response `200`:
+
+```json
+{
+  "id": "ORD-5133",
+  "status": "placed",
+  "customer": {
+    "id": "cus_16",
+    "name": "Shehan Weerasinghe",
+    "mobile": "+94764874755"
+  },
+  "items": [
+    {
+      "productId": "prd_1",
+      "name": "Patchwork Denim Jacket",
+      "size": "M",
+      "quantity": 1,
+      "unitPriceCents": 345000
+    }
+  ],
+  "subtotalCents": 345000,
+  "transportChargeCents": 25000,
+  "totalCents": 370000,
+  "fulfilmentType": "clickAndCollect",
+  "destination": "88 High Level Rd, Nugegoda",
+  "vendor": {
+    "id": "vnd_nugegoda",
+    "name": "ReThread Point – Nugegoda",
+    "address": "88 High Level Rd, Nugegoda"
+  },
+  "paymentMethod": "wallet",
+  "waybillNumber": null,
+  "createdAt": "2026-11-07T05:12:00Z",
+  "timeline": [
+    { "status": "placed", "occurredAt": "2026-11-07T05:12:00Z", "actor": null }
+  ]
+}
+```
+
+`transportChargeCents` is the home delivery charge or the click & collect transport charge, as in the user
+app. `vendor` is `null` for home delivery. `waybillNumber` (`WB-261107-0012`) is issued on confirmation.
+
+### `POST /admin/orders/{id}/status`
+
+```json
+{ "status": "confirmed" }
+```
+
+Response `200`: the updated order, as `GET /admin/orders/{id}`. 409 `ORDER_STATUS_CHANGED` when the move
+isn't allowed from the order's current status (someone else may have moved it). The customer is notified
+of every change.
+
+## Counts
+
+### `GET /admin/counts`
+
+The numbers on the portal's sidebar. Cheap enough to call on every page.
+
+Response `200`:
+
+```json
+{ "newOrders": 2, "waitingPickups": 5 }
+```
+
+`newOrders` counts orders in `placed`; `waitingPickups` counts `pending` pickups.
