@@ -29,6 +29,7 @@ export type MockCollector = {
   lastName: string;
   mobile: string;
   status: "active" | "suspended";
+  statusReason?: string;
   online: boolean;
   latitude: number;
   longitude: number;
@@ -52,6 +53,7 @@ export type MockCustomer = {
   longitude: number;
   joinedAt: string;
   status: "active" | "suspended";
+  statusReason?: string;
   familyMemberCount: number;
 };
 

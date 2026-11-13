@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   centsToRupeesInput,
   formatAmount,
+  formatDateKey,
   formatDateTime,
   formatLkMobile,
   formatMoney,
@@ -74,5 +75,11 @@ describe("dates", () => {
     expect(formatRelative("2026-11-03T04:55:00Z", now)).toBe("5 min ago");
     expect(formatRelative("2026-11-03T02:00:00Z", now)).toBe("3 h ago");
     expect(formatRelative("2026-11-01T02:00:00Z", now)).toBe("Sun 1 Nov");
+  });
+});
+
+describe("formatDateKey", () => {
+  it("formats a calendar date without shifting it", () => {
+    expect(formatDateKey("2026-11-03")).toBe("Tue 3 Nov");
   });
 });
