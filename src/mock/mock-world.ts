@@ -1,5 +1,7 @@
 import "server-only";
 
+import { seedStaff, type MockStaffAccount } from "@/mock/seed/staff";
+
 /**
  * The in-memory stand-in for the .NET API while it doesn't exist.
  *
@@ -15,8 +17,11 @@ export class MockWorld {
   /** When this world was seeded. Mock timestamps are relative to it. */
   readonly seededAt: Date;
 
+  staff: MockStaffAccount[];
+
   constructor(now: Date = new Date()) {
     this.seededAt = now;
+    this.staff = seedStaff();
   }
 
   private sequence = 0;
