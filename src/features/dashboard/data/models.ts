@@ -1,15 +1,5 @@
 import { z } from "zod";
 
-export const pickupStatuses = [
-  "pending",
-  "assigned",
-  "enRoute",
-  "arrived",
-  "collected",
-  "deliveredToHub",
-  "cancelled",
-] as const;
-
 export const activityTypes = [
   "pickupRequested",
   "pickupAssigned",
