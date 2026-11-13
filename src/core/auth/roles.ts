@@ -49,3 +49,22 @@ export function safeRedirectPath(
   if (next.startsWith("/\\") || isPublicPath(next)) return fallback;
   return next;
 }
+
+export type AccessDecision =
+  | "allow"
+  /** Signed out on a portal page: go to /login. */
+  | "login"
+  /** Signed in on /login: go to the dashboard. */
+  | "home"
+  /** Signed in, but the role can't open this section. */
+  | "forbidden";
+
+/** What proxy.ts does with a page request. */
+export function accessDecision(
+  pathname: string,
+  role: Role | undefined,
+): AccessDecision {
+  if (isPublicPath(pathname)) return role ? "home" : "allow";
+  if (!role) return "login";
+  return canAccess(role, pathname) ? "allow" : "forbidden";
+}

@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { canAccess, isPublicPath, safeRedirectPath } from "@/core/auth/roles";
+import {
+  accessDecision,
+  canAccess,
+  isPublicPath,
+  safeRedirectPath,
+} from "@/core/auth/roles";
 
 describe("canAccess", () => {
   it("lets admins open everything", () => {
@@ -37,5 +42,23 @@ describe("safeRedirectPath", () => {
     expect(safeRedirectPath("/\\evil.example")).toBe("/dashboard");
     expect(safeRedirectPath("/login")).toBe("/dashboard");
     expect(safeRedirectPath(undefined)).toBe("/dashboard");
+  });
+});
+
+describe("accessDecision", () => {
+  it("sends signed-out staff to sign in, except on /login", () => {
+    expect(accessDecision("/dashboard", undefined)).toBe("login");
+    expect(accessDecision("/", undefined)).toBe("login");
+    expect(accessDecision("/login", undefined)).toBe("allow");
+  });
+
+  it("sends signed-in staff away from /login", () => {
+    expect(accessDecision("/login", "callCentre")).toBe("home");
+  });
+
+  it("forbids admin-only sections for the call centre", () => {
+    expect(accessDecision("/rates", "callCentre")).toBe("forbidden");
+    expect(accessDecision("/rates", "admin")).toBe("allow");
+    expect(accessDecision("/dispatch", "callCentre")).toBe("allow");
   });
 });
