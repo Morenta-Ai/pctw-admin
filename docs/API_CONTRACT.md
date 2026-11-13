@@ -179,7 +179,7 @@ Response `200`:
       "status": "pending",
       "source": "callCentre",
       "method": "bulk",
-      "customerName": "Fathima Rinoza",
+      "customerName": "Kumudu Herath",
       "area": "Rajagiriya",
       "scheduledDate": "2026-11-07",
       "slot": "afternoon",
