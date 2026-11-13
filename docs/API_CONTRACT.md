@@ -526,3 +526,105 @@ Response `200`:
 ```
 
 `newOrders` counts orders in `placed`; `waitingPickups` counts `pending` pickups.
+
+## Rates (Admin)
+
+What customers earn and collectors are paid per kg, and the two marketplace transport charges. A change
+can start today or be scheduled for a later date. Pickups keep the rates in force when they were booked.
+
+A rate set:
+
+```json
+{
+  "id": "rate_3",
+  "customerRatePerKgCents": 12000,
+  "collectorRatePerKgCents": 4000,
+  "homeDeliveryChargeCents": 35000,
+  "clickAndCollectChargeCents": 25000,
+  "effectiveFrom": "2026-10-01",
+  "createdAt": "2026-09-24T08:15:00Z",
+  "createdBy": "Nadeesha Perera"
+}
+```
+
+### `GET /admin/rates`
+
+Response `200`:
+
+```json
+{
+  "current": {
+    "id": "rate_3",
+    "customerRatePerKgCents": 12000,
+    "collectorRatePerKgCents": 4000,
+    "homeDeliveryChargeCents": 35000,
+    "clickAndCollectChargeCents": 25000,
+    "effectiveFrom": "2026-10-01",
+    "createdAt": "2026-09-24T08:15:00Z",
+    "createdBy": "Nadeesha Perera"
+  },
+  "scheduled": null,
+  "history": []
+}
+```
+
+`scheduled` is a rate set starting after today, or `null`. `history` lists earlier rate sets, newest first,
+not including `current`.
+
+### `POST /admin/rates`
+
+```json
+{
+  "customerRatePerKgCents": 12500,
+  "collectorRatePerKgCents": 4200,
+  "homeDeliveryChargeCents": 35000,
+  "clickAndCollectChargeCents": 25000,
+  "effectiveFrom": "2026-12-01"
+}
+```
+
+Response `201`: the rates, as `GET /admin/rates`. An `effectiveFrom` of today takes effect at once; a later
+date becomes `scheduled`, replacing any earlier scheduled change. 422 if a value isn't positive, the
+collector rate is above the customer rate, or `effectiveFrom` is in the past.
+
+### `DELETE /admin/rates/scheduled`
+
+Response `200`: the rates, with `scheduled` now `null`. 404 `NO_SCHEDULED_RATES`.
+
+## Impact multipliers (Admin)
+
+How the user app turns kilograms collected into the impact figures (`GET /impact` in the user contract).
+Each metric is `perKg × kg`. Changing a multiplier recalculates every customer's impact.
+
+### `GET /admin/impact-multipliers`
+
+Response `200`:
+
+```json
+{
+  "items": [
+    { "key": "ghgSaved", "unit": "kgCo2e", "perKg": 3.5 },
+    { "key": "resourcesSaved", "unit": "kg", "perKg": 7 },
+    { "key": "landfillCostSaved", "unit": "lkrCents", "perKg": 2500 },
+    { "key": "forexSaved", "unit": "usdCents", "perKg": 80 },
+    { "key": "jobsGenerated", "unit": "workDays", "perKg": 0.27 },
+    { "key": "entrepreneursCreated", "unit": "microBusinesses", "perKg": 0.02 },
+    { "key": "garmentsDonated", "unit": "garments", "perKg": 0.72 },
+    { "key": "donationValue", "unit": "lkrCents", "perKg": 2400 }
+  ],
+  "updatedAt": "2026-09-24T08:20:00Z",
+  "updatedBy": "Nadeesha Perera"
+}
+```
+
+The keys and units match the user app's metrics. For `lkrCents` and `usdCents` units, `perKg` is an integer
+number of cents; other units allow up to 4 decimals.
+
+### `PUT /admin/impact-multipliers`
+
+```json
+{ "items": [{ "key": "forexSaved", "perKg": 50 }] }
+```
+
+Send any subset. Response `200`: as `GET /admin/impact-multipliers`. 422 for a negative value, an unknown key,
+or a fractional cent value.
