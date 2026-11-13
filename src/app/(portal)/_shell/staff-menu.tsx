@@ -43,7 +43,10 @@ export async function StaffMenu() {
           <span className="text-xs font-normal text-muted-foreground">
             {staff.email}
           </span>
-          <StatusPill tone={staff.role === "admin" ? "navy" : "cyan"}>
+          <StatusPill
+            tone={staff.role === "admin" ? "navy" : "cyan"}
+            className="mt-1 self-start"
+          >
             {roleLabels[staff.role]}
           </StatusPill>
         </DropdownMenuLabel>

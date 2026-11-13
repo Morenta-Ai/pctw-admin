@@ -4,7 +4,6 @@ import { Suspense } from "react";
 
 import { StatusPill } from "@/components/app/status-pill";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -17,7 +16,7 @@ export function TopBar() {
   return (
     <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center gap-3 border-b bg-card/95 px-4 backdrop-blur">
       <SidebarTrigger />
-      <Separator orientation="vertical" className="h-5!" />
+      <span aria-hidden className="h-5 w-px bg-border" />
       <SectionTitle />
       <div className="ml-auto flex items-center gap-2">
         {mockData && (
