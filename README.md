@@ -70,7 +70,7 @@ Call-centre staff can't open Rates & impact, Catalogue, Donations or Staff.
 | 2    | Sign-in, roles and portal shell        | Planned |
 | 3    | Dashboard                              | Done    |
 | 4    | Pickup requests                        | Done    |
-| 5    | Dispatch map                           | Planned |
+| 5    | Dispatch map                           | Done    |
 | 6    | Manual assignment                      | Planned |
 | 7    | Marketplace orders and waybills        | Planned |
 | 8    | Rates and impact multipliers           | Planned |
