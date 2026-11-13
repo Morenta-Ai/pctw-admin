@@ -6,6 +6,7 @@ import {
   mapLayers,
   markerId,
   nearestCollectors,
+  rankCandidates,
 } from "@/features/dispatch/dispatch-view";
 import { resetMockWorld } from "@/mock/mock-world";
 
@@ -49,5 +50,23 @@ describe("dispatch view", () => {
     expect(nearby).toHaveLength(3);
     expect(nearby.every((c) => c.online)).toBe(true);
     expect(nearby[0]!.distanceKm).toBeLessThanOrEqual(nearby[1]!.distanceKm);
+  });
+});
+
+describe("rankCandidates", () => {
+  it("lists every online collector, those with room first, then nearest", async () => {
+    const d = await dispatch();
+    const pickup = {
+      ...d.pickups.find((p) => p.id === "RT-24841")!,
+      estimatedKg: 39,
+    };
+
+    const ranked = rankCandidates(d, pickup);
+
+    expect(ranked).toHaveLength(7);
+    const firstFull = ranked.findIndex((c) => !c.hasRoom);
+    expect(firstFull).toBeGreaterThan(0);
+    expect(ranked.slice(firstFull).every((c) => !c.hasRoom)).toBe(true);
+    expect(ranked.find((c) => c.code === "COL-0457")?.busy).toBe(true);
   });
 });

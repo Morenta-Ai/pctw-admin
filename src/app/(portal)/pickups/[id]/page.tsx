@@ -1,4 +1,4 @@
-import { ArrowLeft, Phone } from "lucide-react";
+import { ArrowLeft, Phone, UserPlus } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -21,6 +21,14 @@ import {
   formatWeekdayDate,
   formatWeight,
 } from "@/core/format/format";
+import { AssignDialog } from "@/features/assignments/components/assign-dialog";
+import { OfferHistory } from "@/features/assignments/components/offer-history";
+import { getAssignmentsRepository } from "@/features/assignments/data/assignments-repository";
+import { getDispatchRepository } from "@/features/dispatch/data/dispatch-repository";
+import {
+  rankCandidates,
+  type Candidate,
+} from "@/features/dispatch/dispatch-view";
 import { CancelPickupDialog } from "@/features/pickups/components/cancel-pickup-dialog";
 import { PickupTimeline } from "@/features/pickups/components/pickup-timeline";
 import type { PickupDetail } from "@/features/pickups/data/models";
@@ -49,6 +57,12 @@ export default async function PickupPage({
     throw result.error;
   }
   const pickup = result.data;
+  const [offers, candidates] = await Promise.all([
+    getAssignmentsRepository().listForPickup(pickup.id),
+    pickup.status === "pending" ? candidatesFor(pickup) : Promise.resolve([]),
+  ]);
+  const history = offers.ok ? offers.data : [];
+  const openOffer = history.find((a) => a.status === "offered");
 
   return (
     <>
@@ -76,9 +90,26 @@ export default async function PickupPage({
             {formatDateTime(pickup.createdAt)}
           </p>
         </div>
-        {cancellableStatuses.includes(pickup.status) && (
-          <CancelPickupDialog pickupId={pickup.id} />
-        )}
+        <div className="flex flex-wrap gap-2">
+          {pickup.status === "pending" && (
+            <AssignDialog
+              pickup={pickup}
+              candidates={candidates}
+              openAssignmentId={openOffer?.id}
+              trigger={
+                <Button>
+                  <UserPlus />
+                  {openOffer
+                    ? `Offered to ${openOffer.collector.name}`
+                    : "Assign collector"}
+                </Button>
+              }
+            />
+          )}
+          {cancellableStatuses.includes(pickup.status) && (
+            <CancelPickupDialog pickupId={pickup.id} />
+          )}
+        </div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
@@ -88,6 +119,19 @@ export default async function PickupPage({
         </div>
         <div className="flex flex-col gap-4">
           <PeopleCard pickup={pickup} />
+          {history.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Call-centre offers</CardTitle>
+                <CardDescription>
+                  Collectors this pickup was offered to
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <OfferHistory assignments={history} />
+              </CardContent>
+            </Card>
+          )}
           <Card>
             <CardHeader>
               <CardTitle>Progress</CardTitle>
@@ -305,4 +349,10 @@ function PeopleCard({ pickup }: { pickup: PickupDetail }) {
       </CardContent>
     </Card>
   );
+}
+
+/** Online collectors for the assign dialog, from the live dispatch data. */
+async function candidatesFor(pickup: PickupDetail): Promise<Candidate[]> {
+  const dispatch = await getDispatchRepository().getDispatch();
+  return dispatch.ok ? rankCandidates(dispatch.data, pickup) : [];
 }

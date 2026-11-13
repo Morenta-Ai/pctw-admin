@@ -1,9 +1,9 @@
 "use client";
 
-import { ExternalLink, Phone, Radio, X } from "lucide-react";
+import { ExternalLink, Phone, Radio, UserPlus, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { AppMap } from "@/components/app/app-map/app-map";
 import { StatusPill } from "@/components/app/status-pill";
@@ -20,6 +20,7 @@ import {
   formatWeekdayDate,
   formatWeight,
 } from "@/core/format/format";
+import { AssignDialog } from "@/features/assignments/components/assign-dialog";
 import {
   dispatchSchema,
   vehicleLabels,
@@ -32,6 +33,7 @@ import {
   mapLayers,
   markerId,
   nearestCollectors,
+  rankCandidates,
 } from "@/features/dispatch/dispatch-view";
 import {
   pickupStatusLabels,
@@ -60,32 +62,27 @@ export function DispatchBoard({
   const [showOffline, setShowOffline] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    let cancelled = false;
-    const poll = async () => {
-      if (document.hidden) return;
-      try {
-        const response = await fetch("/api/dispatch", { cache: "no-store" });
-        if (response.status === 401) {
-          router.replace("/login?next=/dispatch");
-          return;
-        }
-        if (!response.ok) throw new Error(String(response.status));
-        const next = dispatchSchema.parse(await response.json());
-        if (!cancelled) {
-          setDispatch(next);
-          setStale(false);
-        }
-      } catch {
-        if (!cancelled) setStale(true);
+  const load = useCallback(async () => {
+    try {
+      const response = await fetch("/api/dispatch", { cache: "no-store" });
+      if (response.status === 401) {
+        router.replace("/login?next=/dispatch");
+        return;
       }
-    };
-    const timer = setInterval(poll, POLL_MS);
-    return () => {
-      cancelled = true;
-      clearInterval(timer);
-    };
+      if (!response.ok) throw new Error(String(response.status));
+      setDispatch(dispatchSchema.parse(await response.json()));
+      setStale(false);
+    } catch {
+      setStale(true);
+    }
   }, [router]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (!document.hidden) void load();
+    }, POLL_MS);
+    return () => clearInterval(timer);
+  }, [load]);
 
   // Ages are measured against the server's clock, not the browser's.
   const now = useMemo(
@@ -244,6 +241,7 @@ export function DispatchBoard({
                 dispatch={dispatch}
                 now={now}
                 onSelectCollector={(id) => select(markerId.collector(id))}
+                onAssigned={() => void load()}
               />
             )}
             {selectedCollector && (
@@ -311,7 +309,11 @@ function PickupRow({
     >
       <span className="flex items-center justify-between gap-2">
         <span className="font-mono text-sm font-semibold">{pickup.id}</span>
-        {pickup.status === "pending" ? (
+        {pickup.status === "pending" && pickup.offer ? (
+          <span className="text-xs font-semibold text-info">
+            Offered to {pickup.offer.collectorName.split(" ")[0]}
+          </span>
+        ) : pickup.status === "pending" ? (
           <span
             className={cn(
               "text-xs font-semibold",
@@ -399,11 +401,13 @@ function PickupPanel({
   dispatch,
   now,
   onSelectCollector,
+  onAssigned,
 }: {
   pickup: DispatchPickup;
   dispatch: Dispatch;
   now: Date;
   onSelectCollector: (id: string) => void;
+  onAssigned: () => void;
 }) {
   const collector = dispatch.collectors.find(
     (c) => c.id === pickup.collectorId,
@@ -474,12 +478,34 @@ function PickupPanel({
         </div>
       )}
 
-      <Button asChild variant="outline" size="sm">
-        <Link href={`/pickups/${pickup.id}`}>
-          <ExternalLink />
-          Open pickup
-        </Link>
-      </Button>
+      <div className="flex flex-col gap-2">
+        {/* Stays mounted after the pickup is assigned, so a poll that
+            lands first can't close the dialog before it shows the answer. */}
+        <AssignDialog
+          key={pickup.id}
+          pickup={pickup}
+          candidates={rankCandidates(dispatch, pickup)}
+          openAssignmentId={pickup.offer?.assignmentId}
+          onSettled={onAssigned}
+          trigger={
+            <Button
+              size="sm"
+              className={cn(pickup.status !== "pending" && "hidden")}
+            >
+              <UserPlus />
+              {pickup.offer
+                ? `Offered to ${pickup.offer.collectorName}`
+                : "Assign collector"}
+            </Button>
+          }
+        />
+        <Button asChild variant="outline" size="sm">
+          <Link href={`/pickups/${pickup.id}`}>
+            <ExternalLink />
+            Open pickup
+          </Link>
+        </Button>
+      </div>
     </div>
   );
 }
