@@ -28,6 +28,8 @@ remember from older versions (`middleware` is now `proxy`, for one).
 - With Cache Components, anything that reads cookies, the session or mock/API data renders inside a
   `<Suspense>` boundary (or under a `loading.tsx`). Don't await the session at the top of a layout.
 - Mock sign-in accounts are in the README. e2e tests sign in through `e2e/helpers.ts`.
+- Show maps with `AppMap` (`src/components/app/app-map`), never `GoogleMap` or `DrawnMap` directly: it
+  falls back to the drawn map without a key, like the collector app.
 - English only: this is an internal staff tool, so there is no l10n.
 - `src/components/ui` is shadcn output. Prefer composing it in `src/components/app` over editing it.
 
