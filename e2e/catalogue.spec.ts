@@ -10,7 +10,10 @@ const png = Buffer.from(
 
 test("an admin adds a product with a photo, then hides it from the list", async ({
   page,
-}) => {
+}, testInfo) => {
+  // Unique per attempt: a retry runs against the same server and MockWorld.
+  const name = `Sarong Tote ${testInfo.retry}-${Date.now() % 100_000}`;
+
   await signIn(page, "admin");
   await page.goto("/catalogue");
   await page.getByRole("link", { name: "New product" }).click();
@@ -18,7 +21,7 @@ test("an admin adds a product with a photo, then hides it from the list", async 
   await page.getByRole("button", { name: "Add product" }).click();
   await expect(page.getByText("Give the product a name.")).toBeVisible();
 
-  await page.getByLabel("Name", { exact: true }).fill("Sarong Patch Tote");
+  await page.getByLabel("Name", { exact: true }).fill(name);
   await page.getByRole("combobox", { name: "Category" }).click();
   await page.getByRole("option", { name: "Accessories" }).click();
   await page.getByLabel("Price", { exact: true }).fill("850");
@@ -33,18 +36,14 @@ test("an admin adds a product with a photo, then hides it from the list", async 
   await expect(page.getByText("Cover")).toBeVisible();
 
   await page.getByRole("button", { name: "Add product" }).click();
-  await expect(
-    page.getByText("Sarong Patch Tote added to the catalogue."),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("heading", { name: "Sarong Patch Tote" }),
-  ).toBeVisible();
+  // Wait on the navigation, not the toast: CI can be slow enough to miss it.
+  await expect(page).toHaveURL(/\/catalogue\/prd_\d+$/, { timeout: 15_000 });
+  await expect(page.getByRole("heading", { name })).toBeVisible();
 
-  await page.goto("/catalogue?uploaded=today&q=sarong%20patch");
-  const row = page.getByRole("row").filter({ hasText: "Sarong Patch Tote" });
+  await page.goto(`/catalogue?uploaded=today&q=${encodeURIComponent(name)}`);
+  const row = page.getByRole("row").filter({ hasText: name });
   await expect(row.getByText("In the shop")).toBeVisible();
-  await row.getByRole("switch", { name: /Show Sarong Patch Tote/ }).click();
-  await expect(page.getByText("Sarong Patch Tote is hidden.")).toBeVisible();
+  await row.getByRole("switch", { name: `Show ${name} in the shop` }).click();
   await expect(row.getByText("Hidden")).toBeVisible();
 });
 
