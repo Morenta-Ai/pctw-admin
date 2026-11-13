@@ -4,12 +4,19 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * ReThread brand tokens, shared with the user and collector apps
+ * (see pctw-designs/README.md). shadcn components read the semantic
+ * variables below; feature code uses the Tailwind names (bg-primary,
+ * text-muted-foreground, bg-lime …), never raw hex values.
+ */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-sans: var(--font-jakarta);
+  --font-heading: var(--font-bricolage);
+  --font-mono: var(--font-jetbrains);
+
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -17,6 +24,7 @@
   --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-muted-foreground: var(--sidebar-muted-foreground);
   --color-sidebar: var(--sidebar);
   --color-chart-5: var(--chart-5);
   --color-chart-4: var(--chart-4);
@@ -39,6 +47,23 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+
+  /* Brand colours that have no shadcn equivalent. */
+  --color-lime: var(--lime);
+  --color-lime-foreground: var(--lime-foreground);
+  --color-lime-tint: var(--lime-tint);
+  --color-cyan: var(--cyan);
+  --color-cyan-foreground: var(--cyan-foreground);
+  --color-teal: var(--teal);
+  --color-link: var(--link);
+  --color-info: var(--info);
+  --color-info-bg: var(--info-bg);
+  --color-success: var(--success);
+  --color-success-bg: var(--success-bg);
+  --color-warning: var(--warning);
+  --color-warning-bg: var(--warning-bg);
+  --color-danger-bg: var(--danger-bg);
+
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -49,72 +74,57 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
+  --background: #f4f5f9;
+  --foreground: #0e1330;
+  --card: #ffffff;
+  --card-foreground: #0e1330;
+  --popover: #ffffff;
+  --popover-foreground: #0e1330;
+  --primary: #1f2a5a;
+  --primary-foreground: #ffffff;
+  --secondary: #e6e9f5;
+  --secondary-foreground: #1f2a5a;
+  --muted: #eef0f6;
+  --muted-foreground: #545b7a;
+  --accent: #e6e9f5;
+  --accent-foreground: #1f2a5a;
+  --destructive: #b3261e;
+  --border: #e1e4ee;
+  --input: #d3d8e6;
+  --ring: #3a4a8c;
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --lime: #c6f24e;
+  --lime-foreground: #1f2a5a;
+  --lime-tint: #eef9c8;
+  --cyan: #2eb5c9;
+  --cyan-foreground: #ffffff;
+  --teal: #1a8a9a;
+  --link: #3a4a8c;
+  --info: #2a4fa8;
+  --info-bg: #e3ecff;
+  --success: #3d6b12;
+  --success-bg: #eef9c8;
+  --warning: #8a5300;
+  --warning-bg: #fff1d6;
+  --danger-bg: #ffe3e0;
+
+  --chart-1: #1f2a5a;
+  --chart-2: #2eb5c9;
+  --chart-3: #8fb82e;
+  --chart-4: #3a4a8c;
+  --chart-5: #a9b0cc;
+
+  --radius: 0.75rem;
+
+  --sidebar: #1f2a5a;
+  --sidebar-foreground: #ffffff;
+  --sidebar-muted-foreground: #b7bedb;
+  --sidebar-primary: #c6f24e;
+  --sidebar-primary-foreground: #1f2a5a;
+  --sidebar-accent: rgb(255 255 255 / 0.08);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgb(255 255 255 / 0.1);
+  --sidebar-ring: #c6f24e;
 }
 
 @layer base {
@@ -124,10 +134,16 @@
   body {
     @apply bg-background text-foreground;
   }
-  button:not(:disabled), [role="button"]:not(:disabled) {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
     cursor: pointer;
   }
   html {
     @apply font-sans;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-heading tracking-tight;
   }
 }
