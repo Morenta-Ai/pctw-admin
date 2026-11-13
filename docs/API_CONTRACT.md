@@ -97,3 +97,65 @@ Response `200`:
 
 Response `200`: the `staff` object from login. The portal uses it to confirm a role change or suspension
 without waiting for the token to expire.
+
+## Shared enums
+
+| Enum            | Values                                                                                                                                                                                                                       |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Pickup `status` | `pending` (no collector yet), `assigned`, `enRoute`, `arrived`, `collected`, `deliveredToHub`, `cancelled`. The user app folds `arrived` into `enRoute`; the collector app calls `pending` `open` and `assigned` `accepted`. |
+| Pickup `source` | `app` (booked by the customer), `callCentre` (booked or rescued by the call centre)                                                                                                                                          |
+| Order `status`  | `placed`, `confirmed`, `outForDelivery`, `readyAtVendor`, `completed`, `cancelled`, as in the user app                                                                                                                       |
+
+## Dashboard
+
+### `GET /admin/dashboard`
+
+Today's figures (Colombo calendar day) and the last 14 days, in one call.
+
+Response `200`:
+
+```json
+{
+  "date": "2026-11-07",
+  "pickupsToday": {
+    "total": 15,
+    "pending": 5,
+    "assigned": 1,
+    "enRoute": 1,
+    "arrived": 1,
+    "collected": 4,
+    "deliveredToHub": 1,
+    "cancelled": 1
+  },
+  "unassignedOverdue": 2,
+  "collectedTodayKg": 48.0,
+  "customerPayoutsTodayCents": 576000,
+  "collectorPayoutsTodayCents": 192000,
+  "collectors": { "online": 7, "active": 11 },
+  "orders": { "open": 4, "placedToday": 3 },
+  "daily": [
+    { "date": "2026-10-25", "pickups": 9, "collectedKg": 61.25 },
+    { "date": "2026-11-07", "pickups": 15, "collectedKg": 48.0 }
+  ],
+  "recentActivity": [
+    {
+      "id": "act_RT-24844_pending",
+      "type": "pickupRequested",
+      "subjectId": "RT-24844",
+      "summary": "Battaramulla · about 6 kg · booked in the app",
+      "occurredAt": "2026-11-07T05:52:00Z"
+    }
+  ]
+}
+```
+
+- `pickupsToday` counts pickups scheduled for today, by status.
+- `unassignedOverdue` counts `pending` pickups created more than 30 minutes ago: the call centre's queue.
+- `collectedTodayKg` and both payout totals cover pickups weighed today.
+- `collectors.online` counts collectors online now; `active` excludes suspended accounts.
+- `orders.open` counts orders not yet `completed` or `cancelled`.
+- `daily` has one entry per day for the last 14 days, oldest first, ending today. `collectedKg` is by the day
+  the pickup was weighed.
+- `recentActivity` is the newest 10 events. `type` is `pickupRequested`, `pickupAssigned`,
+  `pickupCollected`, `pickupDelivered`, `pickupCancelled` or `orderPlaced`. `subjectId` is the pickup or
+  order ID.
