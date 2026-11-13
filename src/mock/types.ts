@@ -179,3 +179,16 @@ export type MockRates = {
   homeDeliveryChargeCents: number;
   clickAndCollectChargeCents: number;
 };
+
+export type MockRateSet = MockRates & {
+  id: string;
+  effectiveFrom: string;
+  createdAt: string;
+  createdBy: string;
+};
+
+export type MockMultiplier = {
+  key: string;
+  unit: string;
+  perKg: number;
+};

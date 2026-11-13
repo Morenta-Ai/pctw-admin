@@ -12,13 +12,13 @@ test("the live map lists waiting pickups and suggests nearby collectors", async 
   await expect(page.getByText("Live · updates every 10 s")).toBeVisible();
 
   await page
-    .getByRole("button", { name: /^RT-24841/ })
+    .getByRole("button", { name: /^RT-24822/ })
     .first()
     .click();
   await expect(page.getByText("Nearest available collectors")).toBeVisible();
   await expect(page.getByRole("link", { name: "Open pickup" })).toHaveAttribute(
     "href",
-    "/pickups/RT-24841",
+    "/pickups/RT-24822",
   );
 
   await page.getByRole("tab", { name: /Collectors/ }).click();

@@ -19,3 +19,13 @@ export async function signIn(
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page).not.toHaveURL(/\/login/);
 }
+
+/*
+ * All specs share one server and one MockWorld, and run in parallel. A spec
+ * that changes data owns its records; keep them distinct:
+ *   pickups.spec    cancels RT-24841
+ *   assignment.spec assigns RT-24830
+ *   orders.spec     moves ORD-5134
+ *   rates.spec      changes the rates and multipliers
+ * Read-only specs should use other records (RT-24822, RT-24844 …).
+ */

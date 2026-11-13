@@ -4,6 +4,7 @@ import { seedOrders, seedProducts, seedVendors } from "@/mock/seed/marketplace";
 import { seedCollectors, seedCustomers } from "@/mock/seed/people";
 import { seedPickups } from "@/mock/seed/pickups";
 import { seedHubs } from "@/mock/seed/places";
+import { seedMultipliers, seedRateSets } from "@/mock/seed/rates";
 import { createRandom } from "@/mock/seed/random";
 import { staffIdFromMockToken } from "@/mock/mock-tokens";
 import { seedStaff, type MockStaffAccount } from "@/mock/seed/staff";
@@ -12,10 +13,12 @@ import type {
   MockCollector,
   MockCustomer,
   MockHub,
+  MockMultiplier,
   MockOrder,
   MockPickup,
   MockProduct,
   MockRates,
+  MockRateSet,
   MockVendor,
 } from "@/mock/types";
 
@@ -44,17 +47,21 @@ export class MockWorld {
   products: MockProduct[];
   orders: MockOrder[];
   assignments: MockAssignment[] = [];
+  rateSets: MockRateSet[];
+  multipliers: MockMultiplier[];
+  multipliersUpdated: { at: string; by: string };
 
   constructor(now: Date = new Date()) {
     this.seededAt = now;
     // Same seed every start, so the data is predictable in dev and tests.
     const random = createRandom(24_841);
     this.staff = seedStaff();
-    this.rates = {
-      customerRatePerKgCents: 12_000,
-      collectorRatePerKgCents: 4_000,
-      homeDeliveryChargeCents: 35_000,
-      clickAndCollectChargeCents: 25_000,
+    this.rateSets = seedRateSets();
+    this.rates = this.rateSets.at(-1)!;
+    this.multipliers = seedMultipliers();
+    this.multipliersUpdated = {
+      at: "2026-09-24T08:20:00.000Z",
+      by: "Nadeesha Perera",
     };
     this.hubs = seedHubs();
     this.collectors = seedCollectors(random, now);
