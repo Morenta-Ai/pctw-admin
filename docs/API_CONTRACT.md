@@ -512,3 +512,17 @@ app. `vendor` is `null` for home delivery. `waybillNumber` (`WB-261107-0012`) is
 Response `200`: the updated order, as `GET /admin/orders/{id}`. 409 `ORDER_STATUS_CHANGED` when the move
 isn't allowed from the order's current status (someone else may have moved it). The customer is notified
 of every change.
+
+## Counts
+
+### `GET /admin/counts`
+
+The numbers on the portal's sidebar. Cheap enough to call on every page.
+
+Response `200`:
+
+```json
+{ "newOrders": 2, "waitingPickups": 5 }
+```
+
+`newOrders` counts orders in `placed`; `waitingPickups` counts `pending` pickups.

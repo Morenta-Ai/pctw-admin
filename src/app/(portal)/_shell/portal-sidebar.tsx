@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { requireStaff } from "@/core/auth/session";
+import { getCountsRepository } from "@/features/counts/data/counts-repository";
 
 import { PortalNav } from "./portal-nav";
 
@@ -38,7 +39,15 @@ export function PortalSidebar() {
 /** Reads the session, so it streams in behind the sidebar's static frame. */
 async function RoleNav() {
   const staff = await requireStaff();
-  return <PortalNav role={staff.role} />;
+  const counts = await getCountsRepository().getCounts();
+  // Badges are a nicety: if counts fail, show the nav without them.
+  const badges = counts.ok
+    ? {
+        "/orders": counts.data.newOrders,
+        "/dispatch": counts.data.waitingPickups,
+      }
+    : {};
+  return <PortalNav role={staff.role} badges={badges} />;
 }
 
 // Fixed widths: shadcn's SidebarMenuSkeleton uses Math.random(), which
