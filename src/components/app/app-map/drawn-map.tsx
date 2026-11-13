@@ -8,6 +8,7 @@ import { boundsOf, type Bounds, type LatLng } from "@/core/geo";
 
 import { coastline, colomboBounds, placeLabels } from "./colombo";
 import { MapMarkerView } from "./map-marker-view";
+import { focusOf } from "./focus";
 import type { MapLine, MapMarker } from "./types";
 
 const MAX_ZOOM = 4;
@@ -48,7 +49,7 @@ export function DrawnMap({
   }, []);
 
   const fit = useMemo(
-    () => boundsOf(markers, 0.12) ?? colomboBounds,
+    () => boundsOf(focusOf(markers), 0.12) ?? colomboBounds,
     [markers],
   );
   const selected = markers.find((m) => m.id === selectedId);

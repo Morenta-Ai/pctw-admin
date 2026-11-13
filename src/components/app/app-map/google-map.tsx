@@ -12,6 +12,7 @@ import { boundsOf } from "@/core/geo";
 
 import { colomboBounds } from "./colombo";
 import { MapMarkerView } from "./map-marker-view";
+import { focusOf } from "./focus";
 import type { MapLine, MapMarker } from "./types";
 
 export function GoogleMap({
@@ -29,7 +30,7 @@ export function GoogleMap({
   selectedId?: string | null;
   onSelect?: (id: string) => void;
 }) {
-  const bounds = boundsOf(markers, 0.12) ?? colomboBounds;
+  const bounds = boundsOf(focusOf(markers), 0.12) ?? colomboBounds;
   const selected = markers.find((m) => m.id === selectedId);
 
   return (
