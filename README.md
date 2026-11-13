@@ -77,7 +77,7 @@ Call-centre staff can't open Rates & impact, Catalogue, Donations or Staff.
 | 6    | Manual assignment                      | Done    |
 | 7    | Marketplace orders and waybills        | Done    |
 | 8    | Rates and impact multipliers           | Done    |
-| 9    | Catalogue                              | Planned |
+| 9    | Catalogue                              | Done    |
 | 10   | Customers, collectors and staff        | Planned |
 | 11   | Donations and redemptions              | Planned |
 | 12   | Notifications                          | Planned |

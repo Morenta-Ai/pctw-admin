@@ -19,6 +19,7 @@ import type {
   MockProduct,
   MockRates,
   MockRateSet,
+  MockUpload,
   MockVendor,
 } from "@/mock/types";
 
@@ -47,6 +48,7 @@ export class MockWorld {
   products: MockProduct[];
   orders: MockOrder[];
   assignments: MockAssignment[] = [];
+  uploads = new Map<string, MockUpload>();
   rateSets: MockRateSet[];
   multipliers: MockMultiplier[];
   multipliersUpdated: { at: string; by: string };
