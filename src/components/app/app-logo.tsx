@@ -6,7 +6,7 @@ export function AppLogoMark({ className }: { className?: string }) {
     <span
       aria-hidden
       className={cn(
-        "bg-lime text-lime-foreground font-heading inline-flex size-10 shrink-0 items-center justify-center rounded-lg text-xl font-extrabold",
+        "inline-flex size-10 shrink-0 items-center justify-center rounded-lg bg-lime font-heading text-xl font-extrabold text-lime-foreground",
         className,
       )}
     >
@@ -30,7 +30,7 @@ export function AppLogo({
         <span className="font-heading text-lg font-bold text-white">
           ReThread
         </span>
-        <span className="text-lime text-[11px] font-bold tracking-[0.15em] uppercase">
+        <span className="text-[11px] font-bold tracking-[0.15em] text-lime uppercase">
           {label}
         </span>
       </span>

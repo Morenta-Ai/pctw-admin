@@ -26,7 +26,8 @@ export const metadata: Metadata = {
     default: "ReThread Admin",
     template: "%s · ReThread Admin",
   },
-  description: "Dispatch, orders, rates and accounts for the ReThread platform.",
+  description:
+    "Dispatch, orders, rates and accounts for the ReThread platform.",
   robots: { index: false, follow: false },
 };
 
