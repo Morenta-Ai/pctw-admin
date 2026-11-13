@@ -285,3 +285,69 @@ Response `200`:
 Response `200`: the updated pickup, as `GET /admin/pickups/{id}`. `reason` is required (3–300 characters).
 409 `PICKUP_NOT_CANCELLABLE` once the pickup is collected, delivered or already cancelled. The customer
 and any assigned collector are notified.
+
+## Dispatch
+
+### `GET /admin/dispatch`
+
+Everything the live map shows, in one call. The portal polls it every 10 seconds.
+
+Response `200`:
+
+```json
+{
+  "generatedAt": "2026-11-07T06:00:00Z",
+  "collectors": [
+    {
+      "id": "col_457",
+      "code": "COL-0457",
+      "name": "Ruwan Silva",
+      "mobile": "+94771234567",
+      "online": true,
+      "latitude": 6.8562,
+      "longitude": 79.8641,
+      "lastSeenAt": "2026-11-07T05:59:52Z",
+      "area": "Dehiwala",
+      "vehicle": {
+        "type": "threeWheeler",
+        "plate": "WP ABC-1234",
+        "capacityKg": 120
+      },
+      "loadKg": 20.5,
+      "activePickupId": "RT-24817"
+    }
+  ],
+  "pickups": [
+    {
+      "id": "RT-24841",
+      "status": "pending",
+      "source": "callCentre",
+      "customerName": "Kumudu Herath",
+      "area": "Rajagiriya",
+      "latitude": 6.9094,
+      "longitude": 79.894,
+      "estimatedKg": 9.5,
+      "windowStart": "2026-11-07T09:30:00Z",
+      "windowEnd": "2026-11-07T10:30:00Z",
+      "createdAt": "2026-11-07T05:18:00Z",
+      "collectorId": null
+    }
+  ],
+  "hubs": [
+    {
+      "id": "hub_plg",
+      "code": "PLG",
+      "name": "Central Hub — Peliyagoda",
+      "latitude": 6.9622,
+      "longitude": 79.8829
+    }
+  ]
+}
+```
+
+- `collectors` lists every active (not suspended) collector. Offline collectors keep their last reported
+  position; `lastSeenAt` says how old it is.
+- `loadKg` is what the collector is carrying: collected, not yet delivered to a hub.
+- `activePickupId` is the pickup they are assigned to, travelling to or at, or `null`.
+- `pickups` lists open pickups (`pending`, `assigned`, `enRoute`, `arrived`) for today and later.
+  `collectorId` is set once assigned.
