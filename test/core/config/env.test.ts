@@ -24,6 +24,7 @@ describe("getEnv", () => {
     vi.stubEnv("APP_ENV", "staging");
     vi.stubEnv("API_BASE_URL", "https://staging.api.rethread.lk/api/v1");
     vi.stubEnv("USE_MOCK_DATA", "false");
+    vi.stubEnv("SESSION_SECRET", "a-staging-secret-that-is-32-chars-long");
 
     expect(getEnv()).toMatchObject({
       APP_ENV: "staging",
@@ -35,5 +36,27 @@ describe("getEnv", () => {
     vi.stubEnv("USE_MOCK_DATA", "yes");
 
     expect(() => getEnv()).toThrow(/USE_MOCK_DATA/);
+  });
+});
+
+describe("SESSION_SECRET", () => {
+  it("is optional in dev, treating an empty value as unset", () => {
+    vi.stubEnv("APP_ENV", "dev");
+    vi.stubEnv("SESSION_SECRET", "");
+
+    expect(getEnv().SESSION_SECRET).toBeUndefined();
+  });
+
+  it("is required outside dev", () => {
+    vi.stubEnv("APP_ENV", "prod");
+    vi.stubEnv("SESSION_SECRET", undefined);
+
+    expect(() => getEnv()).toThrow(/SESSION_SECRET/);
+  });
+
+  it("must be long enough", () => {
+    vi.stubEnv("SESSION_SECRET", "short");
+
+    expect(() => getEnv()).toThrow(/SESSION_SECRET/);
   });
 });

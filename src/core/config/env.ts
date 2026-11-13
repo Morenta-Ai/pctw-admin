@@ -13,6 +13,11 @@ const envSchema = z.object({
   /** Serve every repository from the in-memory MockWorld instead of the API. */
   USE_MOCK_DATA: booleanString.default(true),
   API_TIMEOUT_MS: z.coerce.number().int().positive().default(15_000),
+  /** Encrypts the session cookie. Required outside dev; 32+ characters. */
+  SESSION_SECRET: z.preprocess(
+    (value) => (value === "" ? undefined : value),
+    z.string().min(32).optional(),
+  ),
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -31,6 +36,9 @@ export function getEnv(): Env {
       `Invalid environment configuration:\n${z.prettifyError(parsed.error)}`,
     );
   }
+  if (!parsed.data.SESSION_SECRET && parsed.data.APP_ENV !== "dev") {
+    throw new Error("SESSION_SECRET must be set outside dev.");
+  }
   cached = parsed.data;
   return cached;
 }
@@ -38,4 +46,14 @@ export function getEnv(): Env {
 /** Clears the memoised env. For tests only. */
 export function resetEnvForTests(): void {
   cached = undefined;
+}
+
+/**
+ * Only for local development, so `pnpm dev` works without any setup. Staging
+ * and prod refuse to start without a real SESSION_SECRET (see getEnv).
+ */
+export const DEV_SESSION_SECRET = "rethread-admin-dev-only-session-secret-0000";
+
+export function getSessionSecret(): string {
+  return getEnv().SESSION_SECRET ?? DEV_SESSION_SECRET;
 }

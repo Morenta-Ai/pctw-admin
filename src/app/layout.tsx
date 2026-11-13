@@ -4,6 +4,9 @@ import {
   JetBrains_Mono,
   Plus_Jakarta_Sans,
 } from "next/font/google";
+import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -37,7 +40,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${jakarta.variable} ${bricolage.variable} ${jetbrains.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
+        <Toaster position="top-right" richColors />
+      </body>
     </html>
   );
 }
