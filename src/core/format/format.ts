@@ -83,6 +83,16 @@ export function formatLkMobile(e164: string): string {
   return `+94 ${match[1]} ${match[2]} ${match[3]}`;
 }
 
+/** `NP` from "Nadeesha Perera": the avatar tile's letters. */
+export function initials(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]!.toUpperCase())
+    .join("");
+}
+
 const timeFormat = new Intl.DateTimeFormat("en-GB", {
   timeZone: TIME_ZONE,
   hour: "2-digit",
