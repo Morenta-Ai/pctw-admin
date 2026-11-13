@@ -27,5 +27,6 @@ export async function signIn(
  *   assignment.spec assigns RT-24830
  *   orders.spec     moves ORD-5134
  *   rates.spec      changes the rates and multipliers
+ *   catalogue.spec  adds and hides its own new product
  * Read-only specs should use other records (RT-24822, RT-24844 …).
  */
