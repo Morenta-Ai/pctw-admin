@@ -133,9 +133,16 @@ export type MockProduct = {
   priceCents: number;
   stock: number;
   published: boolean;
-  imageUrl: string | null;
+  imageUrls: string[];
   story: string;
   createdAt: string;
+  updatedAt: string;
+};
+
+export type MockUpload = {
+  id: string;
+  contentType: string;
+  bytes: Uint8Array;
 };
 
 /** The user app's order statuses (pctw-user API_CONTRACT). */

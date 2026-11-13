@@ -72,6 +72,39 @@ export class ApiClient {
     return this.request("DELETE", path, options);
   }
 
+  /** `multipart/form-data`, such as a file upload. */
+  async postForm<S extends z.ZodType>(
+    path: string,
+    form: FormData,
+    schema: S,
+  ): Promise<z.infer<S>> {
+    const headers: Record<string, string> = { Accept: "application/json" };
+    const token = await this.options.getAccessToken?.();
+    if (token) headers.Authorization = `Bearer ${token}`;
+    let response: Response;
+    try {
+      response = await (this.options.fetch ?? fetch)(this.url(path), {
+        method: "POST",
+        headers,
+        body: form,
+        signal: AbortSignal.timeout(this.options.timeoutMs ?? 60_000),
+        cache: "no-store",
+      });
+    } catch (error) {
+      throw ApiError.fromUnknown(error);
+    }
+    if (!response.ok) throw await toApiError(response);
+    const parsed = schema.safeParse(await response.json());
+    if (!parsed.success) {
+      throw new ApiError({
+        code: ClientErrorCode.badResponse,
+        message: `POST ${path} returned an unexpected shape.`,
+        status: response.status,
+      });
+    }
+    return parsed.data;
+  }
+
   async request<S extends z.ZodType>(
     method: Method,
     path: string,

@@ -628,3 +628,95 @@ number of cents; other units allow up to 4 decimals.
 
 Send any subset. Response `200`: as `GET /admin/impact-multipliers`. 422 for a negative value, an unknown key,
 or a fractional cent value.
+
+## Catalogue (Admin)
+
+Rejuvenated garments for sale in the user app's shop (`GET /products` in the user contract). New stock is
+uploaded daily.
+
+A product:
+
+```json
+{
+  "id": "prd_1",
+  "name": "Patchwork Denim Jacket",
+  "category": "women",
+  "priceCents": 345000,
+  "sizes": ["XS", "S", "M", "L", "XL"],
+  "stock": 6,
+  "published": true,
+  "story": "Cut from 4 pairs of collected jeans, re-stitched in Moratuwa.",
+  "imageUrls": [],
+  "createdAt": "2026-11-01T04:00:00Z",
+  "updatedAt": "2026-11-01T04:00:00Z"
+}
+```
+
+`category` is `women`, `men`, `kids` or `accessories`, as in the user app. Only `published` products with
+`stock` above zero show in the shop. The first image is the cover.
+
+### `GET /admin/products?category=women&status=published&uploadedOn=2026-11-07&q=denim&page=1&pageSize=25`
+
+`status` is `published`, `hidden` or `outOfStock`. `uploadedOn` is a date (created that Colombo day).
+Newest first.
+
+Response `200`:
+
+```json
+{
+  "items": [
+    {
+      "id": "prd_1",
+      "name": "Patchwork Denim Jacket",
+      "category": "women",
+      "priceCents": 345000,
+      "sizes": ["XS", "S", "M", "L", "XL"],
+      "stock": 6,
+      "published": true,
+      "story": "Cut from 4 pairs of collected jeans, re-stitched in Moratuwa.",
+      "imageUrls": [],
+      "createdAt": "2026-11-01T04:00:00Z",
+      "updatedAt": "2026-11-01T04:00:00Z"
+    }
+  ],
+  "page": 1,
+  "pageSize": 25,
+  "totalCount": 1
+}
+```
+
+### `GET /admin/products/{id}`
+
+Response `200`: the product. 404 `PRODUCT_NOT_FOUND`.
+
+### `POST /admin/products`
+
+```json
+{
+  "name": "Batik Panel Shirt",
+  "category": "men",
+  "priceCents": 220000,
+  "sizes": ["S", "M", "L"],
+  "stock": 9,
+  "published": true,
+  "story": "Old batik sarongs given a second life as shirt panels.",
+  "imageUrls": ["https://cdn.rethread.lk/u/img_8.jpg"]
+}
+```
+
+Response `201`: the product. 422 with field errors: `name` 2–80 characters, `priceCents` above zero, at
+least one size, `stock` zero or more, `story` up to 500 characters, at most 5 images.
+
+### `PATCH /admin/products/{id}`
+
+Any subset of the `POST` fields. Response `200`: the product.
+
+### `POST /admin/uploads`
+
+`multipart/form-data` with one `file` (JPEG, PNG or WebP, up to 5 MB). Response `201`:
+
+```json
+{ "id": "img_8", "url": "https://cdn.rethread.lk/u/img_8.jpg" }
+```
+
+Use the `url` in `imageUrls`. 413 `FILE_TOO_LARGE`, 415 `UNSUPPORTED_FILE_TYPE`.

@@ -116,8 +116,16 @@ const productRows: [
 ];
 
 export function seedProducts(random: Random, now: Date): MockProduct[] {
-  return productRows.map(
-    ([name, category, rupees, sizes, stock, story], i) => ({
+  return productRows.map(([name, category, rupees, sizes, stock, story], i) => {
+    // Always draw, so the orders seeded after this stay the same.
+    const randomDaysAgo = random.int(0, 30);
+    // The first two are today's drop: uploaded within the last hour.
+    const createdAt = new Date(
+      i < 2
+        ? now.getTime() - (i + 1) * 20 * MINUTE
+        : now.getTime() - Math.max(1, randomDaysAgo) * 86_400_000 - i * MINUTE,
+    ).toISOString();
+    return {
       id: `prd_${i + 1}`,
       name,
       category,
@@ -125,13 +133,12 @@ export function seedProducts(random: Random, now: Date): MockProduct[] {
       priceCents: rupees * 100,
       stock,
       published: i !== 8,
-      imageUrl: null,
+      imageUrls: [],
       story,
-      createdAt: new Date(
-        now.getTime() - random.int(0, 30) * 86_400_000 - i * MINUTE,
-      ).toISOString(),
-    }),
-  );
+      createdAt,
+      updatedAt: createdAt,
+    };
+  });
 }
 
 /** Statuses in the order they happen, for building an order's timeline. */
