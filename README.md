@@ -49,6 +49,9 @@ resets when it restarts.
 | Call Centre | `callcentre@rethread.lk` | `rethread-callcentre` |
 
 `ishara@rethread.lk` is a suspended call-centre account, for testing the "account suspended" message.
+In mock data, a collector who is free accepts an offer after about 8 seconds, one already on a job declines,
+and `COL-0421` never answers, so the offer expires after 45 seconds.
+
 Call-centre staff can't open Rates & impact, Catalogue, Donations or Staff.
 
 ## Scripts
@@ -71,7 +74,7 @@ Call-centre staff can't open Rates & impact, Catalogue, Donations or Staff.
 | 3    | Dashboard                              | Done    |
 | 4    | Pickup requests                        | Done    |
 | 5    | Dispatch map                           | Done    |
-| 6    | Manual assignment                      | Planned |
+| 6    | Manual assignment                      | Done    |
 | 7    | Marketplace orders and waybills        | Planned |
 | 8    | Rates and impact multipliers           | Planned |
 | 9    | Catalogue                              | Planned |
