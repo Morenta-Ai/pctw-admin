@@ -9,18 +9,13 @@ import type {
   Staff,
 } from "@/features/auth/data/models";
 import { mockLatency, type MockWorld } from "@/mock/mock-world";
+import { mockTokenFor, staffIdFromMockToken } from "@/mock/mock-tokens";
 import type { MockStaffAccount } from "@/mock/seed/staff";
 
-/*
- * Mock tokens carry the staff id (`mock.stf_1.<n>`) so a session survives a
- * dev-server restart, which resets the MockWorld. They last as long as the
- * session cookie, so mock mode never needs a refresh.
- */
-const tokenFor = (staffId: string, kind: "access" | "refresh", n: string) =>
-  `mock.${staffId}.${kind}.${n}`;
-
-const staffIdFrom = (token: string | undefined) =>
-  token?.startsWith("mock.") ? token.split(".")[1] : undefined;
+// Mock tokens last as long as the session cookie, so mock mode never
+// needs a refresh.
+const tokenFor = mockTokenFor;
+const staffIdFrom = staffIdFromMockToken;
 
 export class AuthMockSource implements AuthSource {
   constructor(

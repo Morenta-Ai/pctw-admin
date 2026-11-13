@@ -5,6 +5,7 @@ import { seedCollectors, seedCustomers } from "@/mock/seed/people";
 import { seedPickups } from "@/mock/seed/pickups";
 import { seedHubs } from "@/mock/seed/places";
 import { createRandom } from "@/mock/seed/random";
+import { staffIdFromMockToken } from "@/mock/mock-tokens";
 import { seedStaff, type MockStaffAccount } from "@/mock/seed/staff";
 import type {
   MockCollector,
@@ -77,6 +78,12 @@ export class MockWorld {
 
   customer(id: string): MockCustomer | undefined {
     return this.customers.find((customer) => customer.id === id);
+  }
+
+  /** The staff member a mock access token belongs to, for timeline actors. */
+  staffForToken(token: string | undefined): MockStaffAccount | undefined {
+    const id = staffIdFromMockToken(token);
+    return this.staff.find((staff) => staff.id === id);
   }
 
   collector(id: string | null): MockCollector | undefined {
