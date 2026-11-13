@@ -159,3 +159,129 @@ Response `200`:
 - `recentActivity` is the newest 10 events. `type` is `pickupRequested`, `pickupAssigned`,
   `pickupCollected`, `pickupDelivered`, `pickupCancelled` or `orderPlaced`. `subjectId` is the pickup or
   order ID.
+
+## Pickups
+
+### `GET /admin/pickups?status=pending&date=2026-11-07&source=app&q=wella&page=1&pageSize=25&sort=-createdAt`
+
+All filters are optional. `status` and `source` take one value each. `date` is the scheduled date. `q`
+matches the pickup ID, the customer's name or mobile, the area and the collector's code, ignoring case.
+`sort` is `createdAt`, `scheduledDate` or `estimatedKg`, with `-` for descending; the default is
+`-createdAt`.
+
+Response `200`:
+
+```json
+{
+  "items": [
+    {
+      "id": "RT-24841",
+      "status": "pending",
+      "source": "callCentre",
+      "method": "bulk",
+      "customerName": "Fathima Rinoza",
+      "area": "Rajagiriya",
+      "scheduledDate": "2026-11-07",
+      "slot": "afternoon",
+      "windowStart": "2026-11-07T09:30:00Z",
+      "windowEnd": "2026-11-07T10:30:00Z",
+      "estimatedKg": 9.5,
+      "actualWeightKg": null,
+      "collector": null,
+      "createdAt": "2026-11-07T05:18:00Z"
+    }
+  ],
+  "page": 1,
+  "pageSize": 25,
+  "totalCount": 1
+}
+```
+
+`collector` is `{ "id": "col_457", "code": "COL-0457", "name": "Ruwan Silva" }` once assigned.
+
+### `GET /admin/pickups/{id}`
+
+Response `200`:
+
+```json
+{
+  "id": "RT-24817",
+  "status": "enRoute",
+  "source": "callCentre",
+  "method": "bulk",
+  "customer": {
+    "id": "cus_1",
+    "name": "Nadeesha Perera",
+    "mobile": "+94764821190"
+  },
+  "area": "Dehiwala",
+  "address": "42/3 Galle Road, Dehiwala",
+  "latitude": 6.8511,
+  "longitude": 79.8655,
+  "scheduledDate": "2026-11-07",
+  "slot": "morning",
+  "windowStart": "2026-11-07T04:30:00Z",
+  "windowEnd": "2026-11-07T05:30:00Z",
+  "estimatedKg": 8.0,
+  "itemCount": null,
+  "bagCount": 3,
+  "actualWeightKg": null,
+  "note": "Bags are next to the side gate. Please ring twice — gate code 1144.",
+  "items": [
+    {
+      "name": "T-shirts & shirts",
+      "quantity": null,
+      "size": null,
+      "condition": "good"
+    }
+  ],
+  "collector": {
+    "id": "col_457",
+    "code": "COL-0457",
+    "name": "Ruwan Silva",
+    "mobile": "+94771234567",
+    "vehiclePlate": "WP ABC-1234"
+  },
+  "customerRatePerKgCents": 12000,
+  "collectorRatePerKgCents": 4000,
+  "customerPayoutCents": null,
+  "collectorPayoutCents": null,
+  "hub": null,
+  "cancelReason": null,
+  "createdAt": "2026-11-07T02:00:00Z",
+  "timeline": [
+    {
+      "status": "pending",
+      "occurredAt": "2026-11-07T02:00:00Z",
+      "actor": "Call centre"
+    },
+    {
+      "status": "assigned",
+      "occurredAt": "2026-11-07T02:30:00Z",
+      "actor": "Ruwan Silva"
+    },
+    {
+      "status": "enRoute",
+      "occurredAt": "2026-11-07T04:18:00Z",
+      "actor": "Ruwan Silva"
+    }
+  ]
+}
+```
+
+- The rates are the ones in force when the pickup was booked, so later rate changes don't alter it.
+  Payouts are `null` until the pickup is weighed.
+- `hub` is `{ "id": "hub_plg", "name": "Central Hub — Peliyagoda" }` once delivered.
+- `timeline` lists what has happened, oldest first. `actor` is the staff member or collector who did it,
+  or `null` for the customer or the system.
+- 404 `PICKUP_NOT_FOUND`.
+
+### `POST /admin/pickups/{id}/cancel`
+
+```json
+{ "reason": "Customer called to cancel: travelling this week." }
+```
+
+Response `200`: the updated pickup, as `GET /admin/pickups/{id}`. `reason` is required (3–300 characters).
+409 `PICKUP_NOT_CANCELLABLE` once the pickup is collected, delivered or already cancelled. The customer
+and any assigned collector are notified.
