@@ -135,6 +135,12 @@ export function formatWeekdayDate(value: Date | string): string {
   return dateFormat.format(toDate(value)).replace(",", "");
 }
 
+/** `Tue 3 Nov` for a calendar date such as `2026-11-03`, with no time-zone shift. */
+export function formatDateKey(dateKey: string): string {
+  // Noon UTC is the same calendar day in Colombo.
+  return formatWeekdayDate(`${dateKey}T06:30:00Z`);
+}
+
 /** `3 Nov 2026`. */
 export function formatDate(value: Date | string): string {
   return fullDateFormat.format(toDate(value));

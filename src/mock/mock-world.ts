@@ -144,6 +144,24 @@ export class MockWorld {
     }
   }
 
+  /** Everything a customer has earned from weighed pickups. */
+  earnedCents(customerId: string): number {
+    return this.pickups
+      .filter((p) => p.customerId === customerId)
+      .reduce((sum, p) => sum + (p.customerPayoutCents ?? 0), 0);
+  }
+
+  /** What's left in a customer's wallet: earnings less redemptions. */
+  walletBalanceCents(customerId: string): number {
+    return this.earnedCents(customerId) - this.redeemedCents(customerId);
+  }
+
+  /** Redemptions arrive in a later step; until then nothing is redeemed. */
+  redeemedCents(customerId: string): number {
+    void customerId;
+    return 0;
+  }
+
   /** The staff member a mock access token belongs to, for timeline actors. */
   staffForToken(token: string | undefined): MockStaffAccount | undefined {
     const id = staffIdFromMockToken(token);
@@ -154,9 +172,10 @@ export class MockWorld {
     return id ? this.collectors.find((c) => c.id === id) : undefined;
   }
 
-  private sequence = 0;
+  // Starts above every seeded number (prd_10, cus_20 …) so new ids never clash.
+  private sequence = 1000;
 
-  /** A unique opaque id, such as `ord_3`. */
+  /** A unique opaque id, such as `prd_1001`. */
   nextId(prefix: string): string {
     this.sequence += 1;
     return `${prefix}_${this.sequence}`;

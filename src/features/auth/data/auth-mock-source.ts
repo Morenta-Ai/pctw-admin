@@ -35,7 +35,9 @@ export class AuthMockSource implements AuthSource {
         status: 401,
       });
     }
-    return this.issueTokens(account);
+    const tokens = this.issueTokens(account);
+    account.lastSignInAt = new Date().toISOString();
+    return tokens;
   }
 
   async refresh(refreshToken: string): Promise<AuthTokens> {

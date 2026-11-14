@@ -720,3 +720,237 @@ Any subset of the `POST` fields. Response `200`: the product.
 ```
 
 Use the `url` in `imageUrls`. 413 `FILE_TOO_LARGE`, 415 `UNSUPPORTED_FILE_TYPE`.
+
+## Customers
+
+### `GET /admin/customers?q=perera&status=active&page=1&pageSize=25`
+
+`q` matches the name, mobile, email and area. `status` is `active` or `suspended`. Newest first.
+
+Response `200`:
+
+```json
+{
+  "items": [
+    {
+      "id": "cus_1",
+      "name": "Nadeesha Perera",
+      "mobile": "+94764821190",
+      "email": "nadeesha.perera@example.lk",
+      "area": "Dehiwala",
+      "status": "active",
+      "joinedAt": "2026-02-11T04:00:00Z",
+      "pickupCount": 7,
+      "collectedKg": 52.6,
+      "walletBalanceCents": 486000
+    }
+  ],
+  "page": 1,
+  "pageSize": 25,
+  "totalCount": 1
+}
+```
+
+`pickupCount` and `collectedKg` count weighed pickups only.
+
+### `GET /admin/customers/{id}`
+
+Response `200`: the list fields, plus:
+
+```json
+{
+  "id": "cus_1",
+  "name": "Nadeesha Perera",
+  "mobile": "+94764821190",
+  "email": "nadeesha.perera@example.lk",
+  "area": "Dehiwala",
+  "status": "active",
+  "joinedAt": "2026-02-11T04:00:00Z",
+  "pickupCount": 7,
+  "collectedKg": 52.6,
+  "walletBalanceCents": 486000,
+  "address": "42/3 Galle Road, Dehiwala",
+  "familyMemberCount": 3,
+  "earnedCents": 631200,
+  "recentPickups": [
+    {
+      "id": "RT-24817",
+      "status": "enRoute",
+      "scheduledDate": "2026-11-07",
+      "estimatedKg": 8.0,
+      "actualWeightKg": null,
+      "customerPayoutCents": null
+    }
+  ]
+}
+```
+
+`earnedCents` is everything the customer has earned; `walletBalanceCents` is what's left after
+redemptions. `recentPickups` is the newest 10.
+
+### `POST /admin/customers/{id}/status`
+
+```json
+{ "status": "suspended", "reason": "Repeated fake bookings." }
+```
+
+Response `200`: the customer, as `GET /admin/customers/{id}`. A suspended customer can't sign in or book.
+`reason` is required when suspending.
+
+## Collectors
+
+### `GET /admin/collectors?q=ruwan&status=active&online=true&page=1&pageSize=25`
+
+Response `200`:
+
+```json
+{
+  "items": [
+    {
+      "id": "col_457",
+      "code": "COL-0457",
+      "name": "Ruwan Silva",
+      "mobile": "+94771234567",
+      "status": "active",
+      "online": true,
+      "area": "Dehiwala",
+      "hub": { "id": "hub_mrt", "name": "South Hub — Moratuwa" },
+      "vehicle": {
+        "type": "threeWheeler",
+        "plate": "WP ABC-1234",
+        "capacityKg": 120
+      },
+      "rating": 4.9,
+      "memberSince": "2025-03-01",
+      "collectedKgThisWeek": 61.2
+    }
+  ],
+  "page": 1,
+  "pageSize": 25,
+  "totalCount": 1
+}
+```
+
+### `GET /admin/collectors/{id}`
+
+Response `200`: the list fields, plus `loadKg`, `earnings` and `recentJobs`:
+
+```json
+{
+  "id": "col_457",
+  "code": "COL-0457",
+  "name": "Ruwan Silva",
+  "mobile": "+94771234567",
+  "status": "active",
+  "online": true,
+  "area": "Dehiwala",
+  "hub": { "id": "hub_mrt", "name": "South Hub — Moratuwa" },
+  "vehicle": {
+    "type": "threeWheeler",
+    "plate": "WP ABC-1234",
+    "capacityKg": 120
+  },
+  "rating": 4.9,
+  "memberSince": "2025-03-01",
+  "collectedKgThisWeek": 61.2,
+  "loadKg": 20.5,
+  "earnings": {
+    "todayCents": 82000,
+    "weekCents": 244800,
+    "monthCents": 902000
+  },
+  "recentJobs": [
+    {
+      "id": "RT-24803",
+      "status": "collected",
+      "scheduledDate": "2026-11-07",
+      "area": "Kollupitiya",
+      "actualWeightKg": 7.2,
+      "collectorPayoutCents": 28800
+    }
+  ]
+}
+```
+
+Earnings are the collector's payouts by the day they weighed, in Colombo time; the week starts on Monday.
+
+### `POST /admin/collectors`
+
+```json
+{
+  "firstName": "Kasun",
+  "lastName": "Perera",
+  "mobile": "+94771239876",
+  "area": "Kotte",
+  "hubId": "hub_plg",
+  "vehicle": {
+    "type": "threeWheeler",
+    "plate": "WP ABQ-7788",
+    "capacityKg": 120
+  }
+}
+```
+
+Response `201`: the collector, as `GET /admin/collectors/{id}`, with a new `COL-` code. They sign in to the
+collector app with that code and their mobile. 409 `MOBILE_IN_USE`.
+
+### `POST /admin/collectors/{id}/status`
+
+`{ "status": "suspended", "reason": "…" }` → the collector. Suspending takes them offline and withdraws
+open offers.
+
+### `GET /admin/hubs`
+
+Response `200`:
+
+```json
+{
+  "items": [
+    {
+      "id": "hub_plg",
+      "code": "PLG",
+      "name": "Central Hub — Peliyagoda",
+      "closesAt": "18:00"
+    }
+  ]
+}
+```
+
+## Staff (Admin)
+
+### `GET /admin/staff`
+
+Response `200`:
+
+```json
+{
+  "items": [
+    {
+      "id": "stf_1",
+      "name": "Nadeesha Perera",
+      "email": "admin@rethread.lk",
+      "role": "admin",
+      "status": "active",
+      "lastSignInAt": "2026-11-07T03:00:00Z"
+    }
+  ]
+}
+```
+
+### `POST /admin/staff`
+
+```json
+{
+  "name": "Dilini Wickramasinghe",
+  "email": "dilini@rethread.lk",
+  "role": "callCentre"
+}
+```
+
+Response `201`: the staff member, `lastSignInAt` `null`. They get an email to set their password. 409
+`EMAIL_IN_USE`.
+
+### `PATCH /admin/staff/{id}`
+
+`{ "role": "admin" }` or `{ "status": "suspended" }`. Response `200`: the staff member. 409
+`CANNOT_CHANGE_SELF` when staff change their own role or status, so there's always another admin to undo it.
