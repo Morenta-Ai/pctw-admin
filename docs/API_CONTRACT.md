@@ -93,6 +93,15 @@ Response `200`:
 
 `{ "refreshToken": "rt_7f3c..." }` → `204`. Revokes the refresh token.
 
+### `POST /admin/auth/set-password`
+
+```json
+{ "token": "inv_…", "password": "a-long-password" }
+```
+
+`204`. Finishes a staff invite: `token` comes from the link in the invite email. The password needs at
+least 10 characters. 400 `INVALID_INVITE` when the token is unknown, used or older than 3 days.
+
 ### `GET /admin/me`
 
 Response `200`: the `staff` object from login. The portal uses it to confirm a role change or suspension
