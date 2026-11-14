@@ -51,6 +51,11 @@ export class MockWorld {
   products: MockProduct[];
   orders: MockOrder[];
   assignments: MockAssignment[] = [];
+  /** Per staff member: notification ids read, and when they last read everything. */
+  notificationReads = new Map<
+    string,
+    { ids: Set<string>; allBefore: string | null }
+  >();
   uploads = new Map<string, MockUpload>();
   rateSets: MockRateSet[];
   donationProjects: MockDonationProject[];

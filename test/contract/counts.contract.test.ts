@@ -17,12 +17,14 @@ describe("counts", () => {
     const now = new Date("2026-11-07T06:00:00Z");
     const counts = await new CountsMockSource(
       resetMockWorld(now),
+      async () => "mock.stf_2.access.1",
       () => now,
     ).getCounts();
     expect(counts).toEqual({
       newOrders: 2,
       waitingPickups: 5,
       pendingTransfers: 3,
+      unreadNotifications: expect.any(Number),
     });
   });
 });
