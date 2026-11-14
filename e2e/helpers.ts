@@ -28,5 +28,6 @@ export async function signIn(
  *   orders.spec     moves ORD-5134
  *   rates.spec      changes the rates and multipliers
  *   catalogue.spec  adds and hides its own new product
+ *   people.spec     suspends cus_20; creates its own collector and staff
  * Read-only specs should use other records (RT-24822, RT-24844 …).
  */
