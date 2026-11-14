@@ -1,11 +1,9 @@
-import { Bell } from "lucide-react";
-import Link from "next/link";
 import { Suspense } from "react";
 
 import { StatusPill } from "@/components/app/status-pill";
-import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { NotificationBell } from "@/features/notifications/components/notification-bell";
 
 import { SectionTitle } from "./section-title";
 import { StaffMenu } from "./staff-menu";
@@ -27,11 +25,7 @@ export function TopBar() {
             Mock data
           </StatusPill>
         )}
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/notifications" aria-label="Notifications">
-            <Bell />
-          </Link>
-        </Button>
+        <NotificationBell />
         <Suspense fallback={<Skeleton className="size-8 rounded-full" />}>
           <StaffMenu />
         </Suspense>

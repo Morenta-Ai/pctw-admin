@@ -46,6 +46,7 @@ async function RoleNav() {
         "/orders": counts.data.newOrders,
         "/dispatch": counts.data.waitingPickups,
         "/redemptions": counts.data.pendingTransfers,
+        "/notifications": counts.data.unreadNotifications,
       }
     : {};
   return <PortalNav role={staff.role} badges={badges} />;
