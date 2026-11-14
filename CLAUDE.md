@@ -30,6 +30,8 @@ remember from older versions (`middleware` is now `proxy`, for one).
 - Mock sign-in accounts are in the README. e2e tests sign in through `e2e/helpers.ts`.
 - Show maps with `AppMap` (`src/components/app/app-map`), never `GoogleMap` or `DrawnMap` directly: it
   falls back to the drawn map without a key, like the collector app.
+- Forms that call Server Actions use `useActionForm` (`src/hooks`) with `<form onSubmit>`, not
+  `useActionState` with `<form action>`: React resets uncontrolled fields after an action, even on errors.
 - English only: this is an internal staff tool, so there is no l10n.
 - `src/components/ui` is shadcn output. Prefer composing it in `src/components/app` over editing it.
 

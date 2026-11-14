@@ -1,8 +1,10 @@
 "use client";
 
+import { useActionForm } from "@/hooks/use-action-form";
+
 import { Loader2, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useActionState, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -42,7 +44,7 @@ export function NewCollectorDialog({ hubs }: { hubs: Hub[] }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [capacity, setCapacity] = useState("");
-  const [state, action, pending] = useActionState<
+  const [state, action, pending] = useActionForm<
     ActionResult<CollectorDetail> | null,
     FormData
   >(async (previous, formData) => {
@@ -76,7 +78,7 @@ export function NewCollectorDialog({ hubs }: { hubs: Hub[] }) {
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
-        <form action={action} className="flex flex-col gap-4">
+        <form onSubmit={action} className="flex flex-col gap-4">
           <DialogHeader>
             <DialogTitle>Register a collector</DialogTitle>
             <DialogDescription>

@@ -1,7 +1,9 @@
 "use client";
 
+import { useActionForm } from "@/hooks/use-action-form";
+
 import { Loader2, MailPlus } from "lucide-react";
-import { useActionState, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -31,7 +33,7 @@ import type { StaffMember } from "@/features/staff/data/models";
 
 export function InviteStaffDialog() {
   const [open, setOpen] = useState(false);
-  const [state, action, pending] = useActionState<
+  const [state, action, pending] = useActionForm<
     ActionResult<StaffMember> | null,
     FormData
   >(async (previous, formData) => {
@@ -54,7 +56,7 @@ export function InviteStaffDialog() {
         </Button>
       </DialogTrigger>
       <DialogContent>
-        <form action={action} className="flex flex-col gap-4">
+        <form onSubmit={action} className="flex flex-col gap-4">
           <DialogHeader>
             <DialogTitle>Invite a staff member</DialogTitle>
             <DialogDescription>

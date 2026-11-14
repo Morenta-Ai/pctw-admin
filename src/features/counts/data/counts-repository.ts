@@ -20,6 +20,9 @@ export class CountsMockSource implements CountsSource {
       newOrders: this.world.orders.filter((o) => o.status === "placed").length,
       waitingPickups: this.world.pickups.filter((p) => p.status === "pending")
         .length,
+      pendingTransfers: this.world.redemptions.filter(
+        (r) => r.type === "cash" && r.status === "pending",
+      ).length,
     };
   }
 }

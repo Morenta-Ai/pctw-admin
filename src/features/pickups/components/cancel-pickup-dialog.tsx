@@ -1,7 +1,9 @@
 "use client";
 
+import { useActionForm } from "@/hooks/use-action-form";
+
 import { Ban, Loader2 } from "lucide-react";
-import { useActionState, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -23,18 +25,18 @@ import { cancelPickup } from "@/features/pickups/actions";
 
 export function CancelPickupDialog({ pickupId }: { pickupId: string }) {
   const [open, setOpen] = useState(false);
-  const [state, action, pending] = useActionState<
-    ActionResult | null,
-    FormData
-  >(async (previous, formData) => {
-    const result = await cancelPickup(pickupId, previous, formData);
-    // Toast here, not in an effect: the refreshed page removes this dialog
-    // in the same render that delivers the result.
-    if (result.ok) {
-      toast.success(`${pickupId} cancelled. The customer has been told.`);
-    }
-    return result;
-  }, null);
+  const [state, action, pending] = useActionForm<ActionResult | null, FormData>(
+    async (previous, formData) => {
+      const result = await cancelPickup(pickupId, previous, formData);
+      // Toast here, not in an effect: the refreshed page removes this dialog
+      // in the same render that delivers the result.
+      if (result.ok) {
+        toast.success(`${pickupId} cancelled. The customer has been told.`);
+      }
+      return result;
+    },
+    null,
+  );
 
   const failed = state && !state.ok ? state : undefined;
   const reasonError = failed?.fieldErrors?.reason;
@@ -48,7 +50,7 @@ export function CancelPickupDialog({ pickupId }: { pickupId: string }) {
         </Button>
       </DialogTrigger>
       <DialogContent>
-        <form action={action} className="flex flex-col gap-4">
+        <form onSubmit={action} className="flex flex-col gap-4">
           <DialogHeader>
             <DialogTitle>Cancel {pickupId}?</DialogTitle>
             <DialogDescription>

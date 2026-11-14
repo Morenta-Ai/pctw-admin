@@ -1,5 +1,7 @@
 "use client";
 
+import { useActionForm } from "@/hooks/use-action-form";
+
 import {
   CheckCircle2,
   Clock,
@@ -9,7 +11,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useActionState, useEffect, useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -73,7 +75,7 @@ export function AssignDialog({
   const [outcome, setOutcome] = useState<Assignment | null>(null);
   const [collectorId, setCollectorId] = useState(defaultCollectorId ?? "");
 
-  const [state, action, submitting] = useActionState<
+  const [state, action, submitting] = useActionForm<
     ActionResult<Assignment> | null,
     FormData
   >(async (previous, formData) => {
@@ -156,7 +158,7 @@ export function AssignDialog({
             }}
           />
         ) : (
-          <form action={action} className="flex flex-col gap-4">
+          <form onSubmit={action} className="flex flex-col gap-4">
             <fieldset className="flex flex-col gap-2">
               <legend className="mb-2 text-sm font-medium">
                 Online collectors, nearest first

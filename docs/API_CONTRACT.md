@@ -522,10 +522,11 @@ The numbers on the portal's sidebar. Cheap enough to call on every page.
 Response `200`:
 
 ```json
-{ "newOrders": 2, "waitingPickups": 5 }
+{ "newOrders": 2, "waitingPickups": 5, "pendingTransfers": 3 }
 ```
 
-`newOrders` counts orders in `placed`; `waitingPickups` counts `pending` pickups.
+`newOrders` counts orders in `placed`; `waitingPickups` counts `pending` pickups; `pendingTransfers` counts
+`pending` cash redemptions.
 
 ## Rates (Admin)
 
@@ -954,3 +955,143 @@ Response `201`: the staff member, `lastSignInAt` `null`. They get an email to se
 
 `{ "role": "admin" }` or `{ "status": "suspended" }`. Response `200`: the staff member. 409
 `CANNOT_CHANGE_SELF` when staff change their own role or status, so there's always another admin to undo it.
+
+## Donation projects (Admin)
+
+Social activity campaigns customers can donate wallet earnings to (`GET /wallet/donation-projects` in the
+user contract shows the `active` ones).
+
+A project:
+
+```json
+{
+  "id": "dp_monaragala",
+  "name": "School uniforms for Monaragala kids",
+  "summary": "Education · 420 children",
+  "goalCents": 50000000,
+  "raisedCents": 34000000,
+  "donorCount": 812,
+  "active": true,
+  "endsOn": "2026-12-31",
+  "createdAt": "2026-08-01T04:00:00Z"
+}
+```
+
+`raisedCents` and `donorCount` come from customers' donations and can't be edited. `endsOn` is optional;
+after it the project stops taking donations.
+
+### `GET /admin/donation-projects`
+
+Response `200`:
+
+```json
+{
+  "items": [
+    {
+      "id": "dp_monaragala",
+      "name": "School uniforms for Monaragala kids",
+      "summary": "Education · 420 children",
+      "goalCents": 50000000,
+      "raisedCents": 34000000,
+      "donorCount": 812,
+      "active": true,
+      "endsOn": "2026-12-31",
+      "createdAt": "2026-08-01T04:00:00Z"
+    }
+  ]
+}
+```
+
+Active projects first, then newest.
+
+### `POST /admin/donation-projects`
+
+```json
+{
+  "name": "Sewing machines for Batticaloa women's co-op",
+  "summary": "Livelihoods · 30 tailors",
+  "goalCents": 150000000,
+  "active": true,
+  "endsOn": null
+}
+```
+
+Response `201`: the project. 422 for a name under 3 characters, a summary over 80, a goal below Rs. 1,000 or
+an `endsOn` in the past.
+
+### `PATCH /admin/donation-projects/{id}`
+
+Any subset of the `POST` fields. Response `200`: the project.
+
+## Redemptions
+
+What customers do with their wallet (`POST /wallet/redemptions` in the user contract). Vouchers and
+donations complete in the app at once; cash goes to the customer's bank and waits for staff to make the
+transfer.
+
+| `type`                | `status`                                                                                                       |
+| --------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `cash`                | `pending` → `paid` (with the bank reference) or `rejected` (with a reason; the amount goes back to the wallet) |
+| `voucher`, `donation` | `completed`                                                                                                    |
+
+### `GET /admin/redemptions?type=cash&status=pending&q=perera&page=1&pageSize=25`
+
+Oldest pending first when `status=pending`, otherwise newest first.
+
+Response `200`:
+
+```json
+{
+  "items": [
+    {
+      "id": "red_3",
+      "type": "cash",
+      "status": "pending",
+      "amountCents": 200000,
+      "customer": {
+        "id": "cus_1",
+        "name": "Nadeesha Perera",
+        "mobile": "+94764821190"
+      },
+      "bank": {
+        "bankName": "Commercial Bank",
+        "branch": "Kollupitiya",
+        "accountName": "Nadeesha Perera",
+        "accountNumber": "8001234821"
+      },
+      "voucher": null,
+      "donation": null,
+      "requestedAt": "2026-11-06T08:30:00Z",
+      "processedAt": null,
+      "processedBy": null,
+      "reference": null,
+      "rejectReason": null
+    }
+  ],
+  "page": 1,
+  "pageSize": 25,
+  "totalCount": 1
+}
+```
+
+`bank` is set for cash only, with the full account number, which staff need to make the transfer (the user
+API only ever returns it masked). `voucher` is `{ "brandName": "Lanka Fresh Supermarkets", "code":
+"LF-7KQ2-4821" }` and `donation` is `{ "projectId": "dp_monaragala", "projectName": "…" }` for those types.
+
+### `POST /admin/redemptions/{id}/pay`
+
+```json
+{ "reference": "CEFT 1107-88213" }
+```
+
+Response `200`: the redemption, now `paid`. The customer is notified. 409 `REDEMPTION_CLOSED` if it isn't
+`pending`.
+
+### `POST /admin/redemptions/{id}/reject`
+
+```json
+{ "reason": "Account name doesn't match the customer." }
+```
+
+Response `200`: the redemption, now `rejected`; the amount is back in the customer's wallet. 409
+`REDEMPTION_CLOSED`.

@@ -29,5 +29,6 @@ export async function signIn(
  *   rates.spec      changes the rates and multipliers
  *   catalogue.spec  adds and hides its own new product
  *   people.spec     suspends cus_20; creates its own collector and staff
+ *   wallet.spec     pays red_1, rejects red_2; creates its own project
  * Read-only specs should use other records (RT-24822, RT-24844 …).
  */
