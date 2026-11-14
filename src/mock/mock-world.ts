@@ -6,12 +6,14 @@ import { seedPickups } from "@/mock/seed/pickups";
 import { seedHubs } from "@/mock/seed/places";
 import { seedMultipliers, seedRateSets } from "@/mock/seed/rates";
 import { createRandom } from "@/mock/seed/random";
+import { seedDonationProjects, seedRedemptions } from "@/mock/seed/wallet";
 import { staffIdFromMockToken } from "@/mock/mock-tokens";
 import { seedStaff, type MockStaffAccount } from "@/mock/seed/staff";
 import type {
   MockAssignment,
   MockCollector,
   MockCustomer,
+  MockDonationProject,
   MockHub,
   MockMultiplier,
   MockOrder,
@@ -19,6 +21,7 @@ import type {
   MockProduct,
   MockRates,
   MockRateSet,
+  MockRedemption,
   MockUpload,
   MockVendor,
 } from "@/mock/types";
@@ -50,6 +53,8 @@ export class MockWorld {
   assignments: MockAssignment[] = [];
   uploads = new Map<string, MockUpload>();
   rateSets: MockRateSet[];
+  donationProjects: MockDonationProject[];
+  redemptions: MockRedemption[];
   multipliers: MockMultiplier[];
   multipliersUpdated: { at: string; by: string };
 
@@ -77,6 +82,7 @@ export class MockWorld {
     );
     this.vendors = seedVendors();
     this.products = seedProducts(random, now);
+    this.donationProjects = seedDonationProjects();
     this.orders = seedOrders(
       random,
       now,
@@ -84,6 +90,9 @@ export class MockWorld {
       this.products,
       this.vendors,
       this.rates,
+    );
+    this.redemptions = seedRedemptions(now, this.customers, (id) =>
+      this.earnedCents(id),
     );
   }
 
@@ -156,10 +165,11 @@ export class MockWorld {
     return this.earnedCents(customerId) - this.redeemedCents(customerId);
   }
 
-  /** Redemptions arrive in a later step; until then nothing is redeemed. */
+  /** Everything a customer has taken out, except rejected cash, which went back. */
   redeemedCents(customerId: string): number {
-    void customerId;
-    return 0;
+    return this.redemptions
+      .filter((r) => r.customerId === customerId && r.status !== "rejected")
+      .reduce((sum, r) => sum + r.amountCents, 0);
   }
 
   /** The staff member a mock access token belongs to, for timeline actors. */

@@ -201,3 +201,37 @@ export type MockMultiplier = {
   unit: string;
   perKg: number;
 };
+
+export type MockDonationProject = {
+  id: string;
+  name: string;
+  summary: string;
+  goalCents: number;
+  /** Raised before the portal's records begin; donations add to it. */
+  baseRaisedCents: number;
+  baseDonorCount: number;
+  active: boolean;
+  endsOn: string | null;
+  createdAt: string;
+};
+
+export type MockRedemption = {
+  id: string;
+  customerId: string;
+  type: "cash" | "voucher" | "donation";
+  status: "pending" | "paid" | "rejected" | "completed";
+  amountCents: number;
+  bank: {
+    bankName: string;
+    branch: string;
+    accountName: string;
+    accountNumber: string;
+  } | null;
+  voucher: { brandName: string; code: string } | null;
+  projectId: string | null;
+  requestedAt: string;
+  processedAt: string | null;
+  processedBy: string | null;
+  reference: string | null;
+  rejectReason: string | null;
+};
