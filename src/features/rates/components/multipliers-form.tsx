@@ -1,7 +1,9 @@
 "use client";
 
+import { useActionForm } from "@/hooks/use-action-form";
+
 import { Loader2, Save } from "lucide-react";
-import { useActionState, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -57,7 +59,7 @@ export function MultipliersForm({
       (m) => [m.key, isMoneyUnit(m.unit) ? "money" : "number"] as const,
     ),
   );
-  const [state, action, pending] = useActionState<
+  const [state, action, pending] = useActionForm<
     ActionResult<Multipliers> | null,
     FormData
   >(async (previous, formData) => {
@@ -71,7 +73,7 @@ export function MultipliersForm({
   const failed = state && !state.ok ? state : undefined;
 
   return (
-    <form action={action} className="flex flex-col gap-4">
+    <form onSubmit={action} className="flex flex-col gap-4">
       <div className="hidden grid-cols-[1fr_12rem_10rem] gap-4 px-1 text-xs font-semibold tracking-wider text-muted-foreground uppercase md:grid">
         <span>Metric</span>
         <span>Per kg collected</span>

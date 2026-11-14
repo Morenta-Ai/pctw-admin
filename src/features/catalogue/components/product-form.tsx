@@ -1,9 +1,11 @@
 "use client";
 
+import { useActionForm } from "@/hooks/use-action-form";
+
 import { ImagePlus, Loader2, Plus, Save, Star, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useActionState, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -53,7 +55,7 @@ export function ProductForm({ product }: { product?: Product }) {
   const [uploading, setUploading] = useState(0);
   const fileInput = useRef<HTMLInputElement>(null);
 
-  const [state, action, pending] = useActionState<
+  const [state, action, pending] = useActionForm<
     ActionResult<Product> | null,
     FormData
   >(async (previous, formData) => {
@@ -112,7 +114,7 @@ export function ProductForm({ product }: { product?: Product }) {
     );
 
   return (
-    <form action={action} className="grid gap-6 lg:grid-cols-[1fr_22rem]">
+    <form onSubmit={action} className="grid gap-6 lg:grid-cols-[1fr_22rem]">
       <div className="flex flex-col gap-5">
         <Field label="Name" htmlFor="name" error={fieldError("name")}>
           <Input

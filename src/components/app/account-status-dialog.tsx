@@ -1,7 +1,9 @@
 "use client";
 
+import { useActionForm } from "@/hooks/use-action-form";
+
 import { Loader2, ShieldCheck, ShieldOff } from "lucide-react";
-import { useActionState, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -40,7 +42,7 @@ export function AccountStatusDialog({
   ) => Promise<ActionResult<unknown>>;
 }) {
   const [open, setOpen] = useState(false);
-  const [state, action, pending] = useActionState<
+  const [state, action, pending] = useActionForm<
     ActionResult<unknown> | null,
     FormData
   >(async (previous, formData) => {
@@ -72,7 +74,7 @@ export function AccountStatusDialog({
         )}
       </DialogTrigger>
       <DialogContent>
-        <form action={action} className="flex flex-col gap-4">
+        <form onSubmit={action} className="flex flex-col gap-4">
           <input
             type="hidden"
             name="status"

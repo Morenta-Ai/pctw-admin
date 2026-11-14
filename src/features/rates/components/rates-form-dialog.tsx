@@ -1,7 +1,9 @@
 "use client";
 
+import { useActionForm } from "@/hooks/use-action-form";
+
 import { Loader2, Pencil } from "lucide-react";
-import { useActionState, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -63,7 +65,7 @@ export function RatesFormDialog({
       fields.map((f) => [f.name, centsToRupeesInput(current[f.name])]),
     ),
   );
-  const [state, action, pending] = useActionState<
+  const [state, action, pending] = useActionForm<
     ActionResult<Rates> | null,
     FormData
   >(async (previous, formData) => {
@@ -92,7 +94,7 @@ export function RatesFormDialog({
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-xl">
-        <form action={action} className="flex flex-col gap-5">
+        <form onSubmit={action} className="flex flex-col gap-5">
           <DialogHeader>
             <DialogTitle>Change rates</DialogTitle>
             <DialogDescription>
