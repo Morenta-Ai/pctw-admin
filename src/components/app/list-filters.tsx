@@ -2,7 +2,7 @@
 
 import { Loader2, Search, X } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useRef, useTransition } from "react";
+import { useEffect, useRef, useTransition } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,6 +46,10 @@ export function ListFilters({
   const [pending, startTransition] = useTransition();
   const searchTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
+  // With Cache Components a page left behind stays mounted but hidden; its
+  // effects are cleaned up, so a pending search can't fire after navigation.
+  useEffect(() => () => clearTimeout(searchTimer.current), []);
+
   const update = (changes: Record<string, string | undefined>) => {
     const next = new URLSearchParams(params);
     for (const [key, value] of Object.entries(changes)) {
@@ -54,6 +58,9 @@ export function ListFilters({
     }
     next.delete("page");
     const query = next.toString();
+    // Nothing changed, or staff already moved on to another page.
+    if (query === params.toString() || window.location.pathname !== pathname)
+      return;
     startTransition(() => {
       router.replace(query ? `${pathname}?${query}` : pathname, {
         scroll: false,
