@@ -80,7 +80,7 @@ Call-centre staff can't open Rates & impact, Catalogue, Donations or Staff.
 | 8    | Rates and impact multipliers           | Done    |
 | 9    | Catalogue                              | Done    |
 | 10   | Customers, collectors and staff        | Done    |
-| 11   | Donations and redemptions              | Planned |
+| 11   | Donations and redemptions              | Done    |
 | 12   | Notifications                          | Planned |
 
 ## Docs
