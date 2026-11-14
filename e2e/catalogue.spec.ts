@@ -37,7 +37,9 @@ test("an admin adds a product with a photo, then hides it from the list", async 
 
   await page.getByRole("button", { name: "Add product" }).click();
   // Wait on the navigation, not the toast: CI can be slow enough to miss it.
-  await expect(page).toHaveURL(/\/catalogue\/prd_\d+$/, { timeout: 15_000 });
+  await expect(page).toHaveURL(/\/catalogue\/prd_[a-z0-9]+$/, {
+    timeout: 15_000,
+  });
   await expect(page.getByRole("heading", { name })).toBeVisible();
 
   await page.goto(`/catalogue?uploaded=today&q=${encodeURIComponent(name)}`);

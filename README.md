@@ -8,12 +8,12 @@ platform. It covers module 3 of the project proposal:
 - **Rates & content:** price per kg, impact multipliers, rejuvenated-garment catalogue
 - **Users & finance:** customer, collector and staff accounts, donation campaigns, redemptions
 
-| Related repo                                                   | What it is                       |
-| -------------------------------------------------------------- | -------------------------------- |
-| [pctw-user](https://github.com/Morenta-Ai/pctw-user)           | Flutter customer app             |
-| [pctw-collector](https://github.com/Morenta-Ai/pctw-collector) | Flutter collector app            |
-| [pctw-backend](https://github.com/Morenta-Ai/pctw-backend)     | ASP.NET Core API (not built yet) |
-| [pctw-designs](https://github.com/Morenta-Ai/pctw-designs)     | Design reference                 |
+| Related repo                                                   | What it is            |
+| -------------------------------------------------------------- | --------------------- |
+| [pctw-user](https://github.com/Morenta-Ai/pctw-user)           | Flutter customer app  |
+| [pctw-collector](https://github.com/Morenta-Ai/pctw-collector) | Flutter collector app |
+| [pctw-backend](https://github.com/Morenta-Ai/pctw-backend)     | ASP.NET Core API      |
+| [pctw-designs](https://github.com/Morenta-Ai/pctw-designs)     | Design reference      |
 
 ## Stack
 
@@ -38,8 +38,8 @@ pnpm dev                     # http://localhost:3000
 | `API_BASE_URL`  | `http://localhost:5080/api/v1` | The .NET API, including `/api/v1`                                |
 | `USE_MOCK_DATA` | `true`                         | Serve everything from the in-memory MockWorld instead of the API |
 
-Until pctw-backend exists, keep `USE_MOCK_DATA=true`. Mock data lives for the life of the dev server and
-resets when it restarts.
+Mock data lives for the life of the dev server and resets when it restarts. To use the real API instead,
+see [Against the real API](#against-the-real-api).
 
 ### Signing in with mock data
 
@@ -66,6 +66,25 @@ Call-centre staff can't open Rates & impact, Catalogue, Donations or Staff.
 | `pnpm typecheck`                    | Route type generation and `tsc` |
 | `pnpm test`                         | Vitest unit and component tests |
 
+## Against the real API
+
+The portal talks to [pctw-backend](https://github.com/Morenta-Ai/pctw-backend) when `USE_MOCK_DATA=false`.
+Its development seed is the same data as the mock world, so every page and the e2e suite behave the
+same:
+
+```sh
+# in pctw-backend
+dotnet run --project src/Rethread.Api -- seed --reset
+ASPNETCORE_ENVIRONMENT=Development Simulation__AutoAnswerOffers=true dotnet run --project src/Rethread.Api
+
+# here
+USE_MOCK_DATA=false pnpm dev
+E2E_API_BASE_URL=http://localhost:5080/api/v1 pnpm test:e2e   # re-seed the API before each run
+```
+
+`Simulation__AutoAnswerOffers` makes the API answer call-centre offers the way the mock collectors do;
+without it, offers wait for a real collector app.
+
 ## Status
 
 | Step | Area                                   | Status  |
@@ -85,8 +104,8 @@ Call-centre staff can't open Rates & impact, Catalogue, Donations or Staff.
 
 ## Not built yet
 
-- Connecting to the real .NET API: every feature has a remote source, but they're untested until pctw-backend
-  exists. Switch with `USE_MOCK_DATA=false`.
+- A set-password page for staff invites: the API emails a `/set-password?token=…` link and accepts
+  `POST /admin/auth/set-password`, but the portal has no page for it yet
 - Real-time updates over WebSockets (the live map, bell and badges poll instead)
 - Reports and CSV export, an audit log, hub management, dark mode
 - A designed admin portal: the UI follows the ReThread brand; there is no admin design in pctw-designs yet
