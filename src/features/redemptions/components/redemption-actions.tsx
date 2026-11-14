@@ -1,7 +1,9 @@
 "use client";
 
+import { useActionForm } from "@/hooks/use-action-form";
+
 import { Check, Loader2, X } from "lucide-react";
-import { useActionState, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -27,7 +29,7 @@ import type { Redemption } from "@/features/redemptions/data/models";
 export function RedemptionActions({ redemption }: { redemption: Redemption }) {
   const who = `${redemption.customer.name}'s ${formatMoney(redemption.amountCents)}`;
   return (
-    <div className="flex justify-end gap-2">
+    <div className="flex flex-col items-stretch gap-1.5">
       <ActionDialog
         trigger={
           <Button size="sm">
@@ -98,7 +100,7 @@ function ActionDialog({
   destructive?: boolean;
 }) {
   const [open, setOpen] = useState(false);
-  const [state, action, pending] = useActionState<
+  const [state, action, pending] = useActionForm<
     ActionResult<Redemption> | null,
     FormData
   >(async (previous, formData) => {
@@ -117,7 +119,7 @@ function ActionDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent>
-        <form action={action} className="flex flex-col gap-4">
+        <form onSubmit={action} className="flex flex-col gap-4">
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
             <DialogDescription>{description}</DialogDescription>

@@ -19,6 +19,10 @@ describe("counts", () => {
       resetMockWorld(now),
       () => now,
     ).getCounts();
-    expect(counts).toEqual({ newOrders: 2, waitingPickups: 5 });
+    expect(counts).toEqual({
+      newOrders: 2,
+      waitingPickups: 5,
+      pendingTransfers: 3,
+    });
   });
 });

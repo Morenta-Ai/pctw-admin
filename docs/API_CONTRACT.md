@@ -522,10 +522,11 @@ The numbers on the portal's sidebar. Cheap enough to call on every page.
 Response `200`:
 
 ```json
-{ "newOrders": 2, "waitingPickups": 5 }
+{ "newOrders": 2, "waitingPickups": 5, "pendingTransfers": 3 }
 ```
 
-`newOrders` counts orders in `placed`; `waitingPickups` counts `pending` pickups.
+`newOrders` counts orders in `placed`; `waitingPickups` counts `pending` pickups; `pendingTransfers` counts
+`pending` cash redemptions.
 
 ## Rates (Admin)
 
