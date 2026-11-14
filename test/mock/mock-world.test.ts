@@ -13,8 +13,9 @@ describe("MockWorld", () => {
   it("hands out unique ids", () => {
     const world = resetMockWorld();
 
-    expect(world.nextId("ord")).toBe("ord_1");
-    expect(world.nextId("ord")).toBe("ord_2");
+    expect(world.nextId("prd")).toBe("prd_1001");
+    expect(world.nextId("prd")).toBe("prd_1002");
+    expect(world.products.map((p) => p.id)).not.toContain("prd_1001");
   });
 });
 

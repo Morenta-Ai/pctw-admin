@@ -172,9 +172,10 @@ export class MockWorld {
     return id ? this.collectors.find((c) => c.id === id) : undefined;
   }
 
-  private sequence = 0;
+  // Starts above every seeded number (prd_10, cus_20 …) so new ids never clash.
+  private sequence = 1000;
 
-  /** A unique opaque id, such as `ord_3`. */
+  /** A unique opaque id, such as `prd_1001`. */
   nextId(prefix: string): string {
     this.sequence += 1;
     return `${prefix}_${this.sequence}`;
