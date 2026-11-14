@@ -46,3 +46,6 @@ export function notificationHref(
       return `/pickups/${n.subjectId}`;
   }
 }
+
+/** Fired on window when notifications are read, so the bell updates at once. */
+export const NOTIFICATIONS_CHANGED = "rethread:notifications-changed";
