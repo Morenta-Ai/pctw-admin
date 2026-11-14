@@ -81,7 +81,15 @@ Call-centre staff can't open Rates & impact, Catalogue, Donations or Staff.
 | 9    | Catalogue                              | Done    |
 | 10   | Customers, collectors and staff        | Done    |
 | 11   | Donations and redemptions              | Done    |
-| 12   | Notifications                          | Planned |
+| 12   | Notifications                          | Done    |
+
+## Not built yet
+
+- Connecting to the real .NET API: every feature has a remote source, but they're untested until pctw-backend
+  exists. Switch with `USE_MOCK_DATA=false`.
+- Real-time updates over WebSockets (the live map, bell and badges poll instead)
+- Reports and CSV export, an audit log, hub management, dark mode
+- A designed admin portal: the UI follows the ReThread brand; there is no admin design in pctw-designs yet
 
 ## Docs
 
