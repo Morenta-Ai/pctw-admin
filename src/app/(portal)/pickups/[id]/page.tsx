@@ -18,6 +18,7 @@ import {
   formatLkMobile,
   formatMoney,
   formatTimeWindow,
+  formatDateKey,
   formatWeekdayDate,
   formatWeight,
 } from "@/core/format/format";
@@ -31,7 +32,7 @@ import {
 } from "@/features/dispatch/dispatch-view";
 import { CancelPickupDialog } from "@/features/pickups/components/cancel-pickup-dialog";
 import { PickupTimeline } from "@/features/pickups/components/pickup-timeline";
-import type { PickupDetail } from "@/features/pickups/data/models";
+import { slotLabels, type PickupDetail } from "@/features/pickups/data/models";
 import {
   cancellableStatuses,
   pickupSourceLabels,
@@ -181,6 +182,21 @@ function SummaryCard({ pickup }: { pickup: PickupDetail }) {
               {formatTimeWindow(pickup.windowStart, pickup.windowEnd)}
             </span>
           </Fact>
+          {pickup.preferredDates.length > 0 && (
+            <Fact label="Customer's dates">
+              {pickup.preferredDates
+                .toSorted((a, b) => a.priority - b.priority)
+                .map((d) => (
+                  <span key={d.priority} className="block">
+                    {formatDateKey(d.date)}
+                    <span className="font-normal text-muted-foreground">
+                      {" "}
+                      · {slotLabels[d.slot]}
+                    </span>
+                  </span>
+                ))}
+            </Fact>
+          )}
           <Fact label="Customer's estimate">
             {formatWeight(pickup.estimatedKg, 1)}
             <span className="block text-xs font-normal text-muted-foreground">
@@ -281,7 +297,9 @@ function ItemsCard({ pickup }: { pickup: PickupDetail }) {
                     ? "success"
                     : item.condition === "fair"
                       ? "neutral"
-                      : "warning"
+                      : item.condition === "worn"
+                        ? "warning"
+                        : "danger"
                 }
               >
                 {item.condition[0]!.toUpperCase() + item.condition.slice(1)}
