@@ -109,11 +109,12 @@ without waiting for the token to expire.
 
 ## Shared enums
 
-| Enum            | Values                                                                                                                                                                                                                       |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Pickup `status` | `pending` (no collector yet), `assigned`, `enRoute`, `arrived`, `collected`, `deliveredToHub`, `cancelled`. The user app folds `arrived` into `enRoute`; the collector app calls `pending` `open` and `assigned` `accepted`. |
-| Pickup `source` | `app` (booked by the customer), `callCentre` (booked or rescued by the call centre)                                                                                                                                          |
-| Order `status`  | `placed`, `confirmed`, `outForDelivery`, `readyAtVendor`, `completed`, `cancelled`, as in the user app                                                                                                                       |
+| Enum             | Values                                                                                                                                                                                                                       |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Item `condition` | `good`, `fair`, `worn` or `damaged`, as the customer described it                                                                                                                                                            |
+| Pickup `status`  | `pending` (no collector yet), `assigned`, `enRoute`, `arrived`, `collected`, `deliveredToHub`, `cancelled`. The user app folds `arrived` into `enRoute`; the collector app calls `pending` `open` and `assigned` `accepted`. |
+| Pickup `source`  | `app` (booked by the customer), `callCentre` (booked or rescued by the call centre)                                                                                                                                          |
+| Order `status`   | `placed`, `confirmed`, `outForDelivery`, `readyAtVendor`, `completed`, `cancelled`, as in the user app                                                                                                                       |
 
 ## Dashboard
 
@@ -274,6 +275,11 @@ Response `200`:
       "occurredAt": "2026-11-07T04:18:00Z",
       "actor": "Ruwan Silva"
     }
+  ],
+  "preferredDates": [
+    { "priority": 1, "date": "2026-11-07", "slot": "morning" },
+    { "priority": 2, "date": "2026-11-08", "slot": "morning" },
+    { "priority": 3, "date": "2026-11-09", "slot": "afternoon" }
   ]
 }
 ```
@@ -283,7 +289,19 @@ Response `200`:
 - `hub` is `{ "id": "hub_plg", "name": "Central Hub — Peliyagoda" }` once delivered.
 - `timeline` lists what has happened, oldest first. `actor` is the staff member or collector who did it,
   or `null` for the customer or the system.
+- `preferredDates` are the three days the customer offered in the user app, first choice first. The
+  pickup is scheduled on the first until a collector takes it, which confirms the scheduled day.
 - 404 `PICKUP_NOT_FOUND`.
+
+### `POST /admin/pickups/{id}/schedule`
+
+```json
+{ "date": "2026-11-08", "slot": "afternoon" }
+```
+
+Response `200`: the updated pickup. Moves a pickup that's still `pending` to another day or slot agreed with
+the customer, before offering it. 409 `PICKUP_ALREADY_ASSIGNED` once a collector has it, 422 for a slot
+that has passed.
 
 ### `POST /admin/pickups/{id}/cancel`
 

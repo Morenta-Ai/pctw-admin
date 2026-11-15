@@ -104,6 +104,8 @@ without it, offers wait for a real collector app.
 
 ## Not built yet
 
+- Moving a waiting pickup to another day: the API has `POST /admin/pickups/{id}/schedule`, but there's no
+  button for it yet
 - A set-password page for staff invites: the API emails a `/set-password?token=…` link and accepts
   `POST /admin/auth/set-password`, but the portal has no page for it yet
 - Real-time updates over WebSockets (the live map, bell and badges poll instead)
