@@ -10,6 +10,20 @@ const kg = z.number().nonnegative();
 const cents = z.number().int().nonnegative();
 
 export const slotSchema = z.enum(["morning", "afternoon", "evening"]);
+
+export const slotLabels: Record<z.infer<typeof slotSchema>, string> = {
+  morning: "Morning",
+  afternoon: "Afternoon",
+  evening: "Evening",
+};
+
+/** One of the three days the customer offered in the user app, first choice first. */
+export const preferredDateSchema = z.object({
+  priority: z.number().int().min(1),
+  date: z.iso.date(),
+  slot: slotSchema,
+});
+export type PreferredDate = z.infer<typeof preferredDateSchema>;
 export const methodSchema = z.enum(["bulk", "itemised"]);
 
 /** A row in `GET /admin/pickups`. */
@@ -67,7 +81,7 @@ export const pickupDetailSchema = z.object({
       name: z.string(),
       quantity: z.number().int().positive().nullable(),
       size: z.string().nullable(),
-      condition: z.enum(["good", "fair", "worn"]),
+      condition: z.enum(["good", "fair", "worn", "damaged"]),
     }),
   ),
   collector: z
@@ -87,6 +101,7 @@ export const pickupDetailSchema = z.object({
   cancelReason: z.string().nullable(),
   createdAt: z.iso.datetime(),
   timeline: z.array(pickupEventSchema),
+  preferredDates: z.array(preferredDateSchema).default([]),
 });
 export type PickupDetail = z.infer<typeof pickupDetailSchema>;
 

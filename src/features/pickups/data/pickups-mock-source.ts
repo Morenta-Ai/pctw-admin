@@ -1,5 +1,7 @@
 import "server-only";
 
+import { addDays } from "@/core/time";
+
 import { ApiError } from "@/core/api/api-error";
 import { paginate } from "@/core/paged";
 import type {
@@ -178,6 +180,12 @@ export class PickupsMockSource implements PickupsSource {
       cancelReason: pickup.cancelReason,
       createdAt: pickup.createdAt,
       timeline: pickup.timeline,
+      // As the API seeds them: the day it's on, then the next two, same slot.
+      preferredDates: [0, 1, 2].map((i) => ({
+        priority: i + 1,
+        date: addDays(pickup.scheduledDate, i),
+        slot: pickup.slot,
+      })),
     };
   }
 }
