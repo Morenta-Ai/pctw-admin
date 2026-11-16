@@ -76,7 +76,7 @@ export class CatalogueMockSource implements CatalogueSource {
     if (file.size > MAX_IMAGE_BYTES) {
       throw new ApiError({
         code: "FILE_TOO_LARGE",
-        message: "Photos can be up to 5 MB.",
+        message: "Photos can be up to 4 MB.",
         status: 413,
       });
     }

@@ -34,6 +34,7 @@ import {
   type Product,
   type ProductCategory,
 } from "@/features/catalogue/data/models";
+import { shrinkPhoto } from "@/features/catalogue/shrink-photo";
 import { cn } from "@/lib/utils";
 
 const presetSizes: Record<ProductCategory, string[]> = {
@@ -83,14 +84,15 @@ export function ProductForm({ product }: { product?: Product }) {
         toast.error(`${file.name}: use a JPEG, PNG or WebP photo.`);
         continue;
       }
-      if (file.size > MAX_IMAGE_BYTES) {
-        toast.error(`${file.name} is over 5 MB.`);
-        continue;
-      }
       setUploading((n) => n + 1);
       try {
+        const photo = await shrinkPhoto(file);
+        if (photo.size > MAX_IMAGE_BYTES) {
+          toast.error(`${file.name} is too large. Use a photo under 4 MB.`);
+          continue;
+        }
         const form = new FormData();
-        form.set("file", file);
+        form.set("file", photo);
         const response = await fetch("/api/uploads", {
           method: "POST",
           body: form,
@@ -350,7 +352,7 @@ export function ProductForm({ product }: { product?: Product }) {
             }}
           />
           <p className="text-xs text-muted-foreground">
-            JPEG, PNG or WebP, up to 5 MB each.
+            JPEG, PNG or WebP. Large photos are made smaller before they upload.
           </p>
         </div>
 

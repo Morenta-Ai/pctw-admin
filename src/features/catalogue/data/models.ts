@@ -27,7 +27,8 @@ export const productStatusLabels: Record<ProductStatus, string> = {
 };
 
 export const MAX_IMAGES = 5;
-export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+/** After shrinking (see shrink-photo.ts): under the hosting platform's 4.5 MB request limit. */
+export const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
 export const imageTypes = ["image/jpeg", "image/png", "image/webp"] as const;
 
 export const productSchema = z.object({
